@@ -1,0 +1,224 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0A0118;
+  --cream: #FFF8E7;
+  --electric: #FF2E93;
+  --acid: #D9FF00;
+  --cobalt: #3E2BFF;
+  --tangerine: #FF6B1A;
+
+  /* Motion timings — keeping them consistent everywhere */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+* { -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  /* Subtle background mesh — adds depth without distraction */
+  background-image:
+    radial-gradient(at 12% 8%, rgba(255, 46, 147, 0.05) 0, transparent 45%),
+    radial-gradient(at 88% 12%, rgba(217, 255, 0, 0.07) 0, transparent 50%),
+    radial-gradient(at 60% 95%, rgba(62, 43, 255, 0.05) 0, transparent 55%);
+}
+
+::selection { background: var(--acid); color: var(--ink); }
+
+/* Scrollbar — make it match the brand */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb {
+  background: var(--ink);
+  border: 3px solid var(--cream);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--electric); }
+
+/* Grain texture overlay */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Marquee */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 50s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* === BRUTALIST CARD SYSTEM === */
+.brut {
+  border: 2.5px solid var(--ink);
+  box-shadow: 6px 6px 0 0 var(--ink);
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s var(--ease-spring);
+}
+.brut:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 10px 10px 0 0 var(--ink);
+}
+.brut:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 0 var(--ink);
+  transition-duration: 0.05s;
+}
+
+.brut-pink { background: var(--electric); color: var(--cream); }
+.brut-acid { background: var(--acid); color: var(--ink); }
+.brut-cobalt { background: var(--cobalt); color: var(--cream); }
+.brut-tangerine { background: var(--tangerine); color: var(--ink); }
+.brut-cream { background: var(--cream); color: var(--ink); }
+.brut-ink { background: var(--ink); color: var(--cream); }
+
+/* Soft non-interactive variant */
+.brut-soft {
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+
+/* Dotted background pattern */
+.dots {
+  background-image: radial-gradient(circle, rgba(10,1,24,0.18) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Diagonal stripes — used for headers / accents */
+.stripes {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--ink),
+    var(--ink) 3px,
+    transparent 3px,
+    transparent 14px
+  );
+}
+
+/* === TYPOGRAPHY === */
+.display-xl {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.85;
+}
+
+.serif-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Tilt utilities */
+.tilt-l { transform: rotate(-2.5deg); }
+.tilt-r { transform: rotate(2.5deg); }
+
+/* === MOTION === */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fade-up 0.7s var(--ease-smooth) both;
+}
+.fade-up-1 { animation: fade-up 0.7s var(--ease-smooth) 0.05s both; }
+.fade-up-2 { animation: fade-up 0.7s var(--ease-smooth) 0.15s both; }
+.fade-up-3 { animation: fade-up 0.7s var(--ease-smooth) 0.25s both; }
+.fade-up-4 { animation: fade-up 0.7s var(--ease-smooth) 0.35s both; }
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.scale-in { animation: scale-in 0.4s var(--ease-spring) both; }
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow { animation: spin-slow 14s linear infinite; }
+
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 12px var(--acid)); }
+}
+.pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+@keyframes shimmer {
+  from { background-position: -1000px 0; }
+  to { background-position: 1000px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, rgba(10,1,24,0.06) 0, rgba(10,1,24,0.12) 50%, rgba(10,1,24,0.06) 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* Reveal-on-scroll (works with .reveal-init via IntersectionObserver) */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s var(--ease-smooth), transform 0.8s var(--ease-smooth);
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card hover with poster zoom */
+.poster-card .poster-img {
+  transition: transform 0.6s var(--ease-smooth);
+}
+.poster-card:hover .poster-img {
+  transform: scale(1.08);
+}
+
+/* Trailer play button overlay */
+.play-btn {
+  transition: transform 0.3s var(--ease-spring), background 0.3s ease;
+}
+.play-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Modal backdrop */
+.backdrop-blur-strong {
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+}
+
+/* Sticker — hand-drawn vibe */
+.sticker {
+  filter: drop-shadow(3px 3px 0 var(--ink));
+}
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
