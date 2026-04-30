@@ -9,6 +9,7 @@ const display = Archivo_Black({
   weight: "400",
   variable: "--font-display",
   display: "swap",
+  preload: false,
 });
 
 const sans = GeistSans;
@@ -19,6 +20,7 @@ const serif = Instrument_Serif({
   style: ["normal", "italic"],
   variable: "--font-serif",
   display: "swap",
+  preload: false,
 });
 
 const mono = JetBrains_Mono({
@@ -26,6 +28,7 @@ const mono = JetBrains_Mono({
   weight: ["400", "600"],
   variable: "--font-mono",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
