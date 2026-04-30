@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Archivo_Black, Geist, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Archivo_Black, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
@@ -10,12 +11,7 @@ const display = Archivo_Black({
   display: "swap",
 });
 
-const sans = Geist({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-sans",
-  display: "swap",
-});
+const sans = GeistSans;
 
 const serif = Instrument_Serif({
   subsets: ["latin"],
