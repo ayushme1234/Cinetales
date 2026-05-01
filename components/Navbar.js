@@ -176,7 +176,8 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-bg/95 backdrop-blur-xl border-b border-border animate-fade-in">
           <div className="container-x py-4 space-y-1">
-            {NAV.map((item) => {
+            {/* Filter Search out — it has its own dedicated icon at the top */}
+            {NAV.filter((item) => item.href !== "/search").map((item) => {
               const Icon = item.icon;
               const active = router.asPath.startsWith(item.href);
               return (
