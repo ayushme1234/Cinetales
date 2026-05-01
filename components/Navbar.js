@@ -11,9 +11,28 @@ import { useSession, signIn, signOut } from "next-auth/react";
 const NAV = [
   { href: "/discover", label: "Discover", icon: CompassIcon },
   { href: "/trending", label: "Trending", icon: FlameIcon },
-  { href: "/vibes", label: "VibesAI", icon: SparklesIcon },
-  { href: "/match", label: "AI Match", icon: BridgeIcon },
   { href: "/about", label: "About", icon: InfoIcon },
+];
+
+const AI_FEATURES = [
+  {
+    href: "/vibes",
+    label: "VibesAI",
+    desc: "Describe a mood, get picks",
+    icon: SparklesIcon,
+  },
+  {
+    href: "/discover",
+    label: "AI Pitch",
+    desc: "Spoiler-free 3-bullet takes",
+    icon: AiPitchIcon,
+  },
+  {
+    href: "/match",
+    label: "AI Match",
+    desc: "Find the bridge between two films",
+    icon: BridgeIcon,
+  },
 ];
 
 export default function Navbar() {
@@ -22,6 +41,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -30,10 +50,11 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile drawer on route change
+  // Close mobile drawer + dropdowns on route change
   useEffect(() => {
     setMenuOpen(false);
     setProfileOpen(false);
+    setAiOpen(false);
   }, [router.asPath]);
 
   return (
@@ -79,10 +100,95 @@ export default function Navbar() {
           })}
         </nav>
 
+        {/* ──── AI dropdown — desktop + mobile ─────────── */}
+        <div className="ml-auto md:ml-0 relative">
+          <button
+            onClick={() => {
+              setAiOpen((v) => !v);
+              setProfileOpen(false);
+            }}
+            aria-label="AI features"
+            aria-expanded={aiOpen}
+            className={`relative w-10 h-10 grid place-items-center rounded-full border btn-press transition-all overflow-hidden ${
+              aiOpen
+                ? "bg-accent text-white border-accent"
+                : "bg-surface border-border text-accent hover:border-accent"
+            }`}
+            style={
+              aiOpen
+                ? { boxShadow: "0 0 18px -2px var(--accent-glow)" }
+                : undefined
+            }
+            title="AI features"
+          >
+            {/* Animated background pulse when closed */}
+            {!aiOpen && (
+              <span
+                aria-hidden
+                className="absolute inset-0 rounded-full bg-accent/15 animate-pulse-slow pointer-events-none"
+              />
+            )}
+            <AiSparkIcon className="w-4 h-4 relative" spinning={aiOpen} />
+          </button>
+
+          {aiOpen && (
+            <>
+              {/* Backdrop to close on outside click */}
+              <button
+                aria-label="Close AI menu"
+                className="fixed inset-0 z-40 cursor-default"
+                onClick={() => setAiOpen(false)}
+              />
+              {/* Dropdown */}
+              <div className="absolute right-0 md:right-auto md:left-1/2 md:-translate-x-1/2 mt-2 w-[280px] md:w-[320px] z-50 rounded-2xl bg-bg/95 backdrop-blur-xl border border-border shadow-2xl overflow-hidden animate-fade-in">
+                <div className="px-4 pt-4 pb-2 border-b border-border">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent flex items-center gap-1.5">
+                    <span className="relative grid place-items-center w-3 h-3">
+                      <span className="absolute inset-0 rounded-full bg-accent/40 animate-ping" />
+                      <span className="relative">✦</span>
+                    </span>
+                    Powered by AI
+                  </p>
+                  <p className="text-xs text-text-3 mt-1">
+                    Find what to watch, the smart way.
+                  </p>
+                </div>
+                <div className="p-2">
+                  {AI_FEATURES.map((f) => {
+                    const Icon = f.icon;
+                    return (
+                      <Link
+                        key={f.label}
+                        href={f.href}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface group transition"
+                      >
+                        <span className="grid place-items-center w-9 h-9 rounded-full bg-accent-dim border border-accent/30 text-accent shrink-0 group-hover:scale-110 transition-transform">
+                          <Icon className="w-4 h-4" />
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-sm text-text-1 font-medium">
+                            {f.label}
+                          </span>
+                          <span className="block text-xs text-text-3 truncate">
+                            {f.desc}
+                          </span>
+                        </span>
+                        <span className="text-text-3 group-hover:text-accent group-hover:translate-x-0.5 transition-all">
+                          →
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
         {/* ALWAYS-VISIBLE search icon — works on mobile + desktop */}
         <Link
           href="/search"
-          className="ml-auto md:ml-0 mr-2 md:mr-3 w-10 h-10 grid place-items-center rounded-full bg-surface border border-border text-text-1 hover:border-accent hover:text-accent btn-press"
+          className="ml-2 mr-2 md:mr-3 w-10 h-10 grid place-items-center rounded-full bg-surface border border-border text-text-1 hover:border-accent hover:text-accent btn-press"
           aria-label="Search"
           title="Search"
         >
@@ -168,8 +274,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-bg/95 backdrop-blur-xl border-b border-border animate-fade-in">
           <div className="container-x py-4 space-y-1">
-            {/* Filter Search out — it has its own dedicated icon at the top */}
-            {NAV.filter((item) => item.href !== "/search").map((item) => {
+            {NAV.map((item) => {
               const Icon = item.icon;
               const active = router.asPath.startsWith(item.href);
               return (
@@ -187,6 +292,36 @@ export default function Navbar() {
                 </Link>
               );
             })}
+
+            {/* AI features sub-section in mobile drawer */}
+            <div className="pt-3 mt-3 border-t border-border">
+              <p className="px-4 mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-accent flex items-center gap-1.5">
+                <span className="relative grid place-items-center w-3 h-3">
+                  <span className="absolute inset-0 rounded-full bg-accent/40 animate-ping" />
+                  <span className="relative">✦</span>
+                </span>
+                Powered by AI
+              </p>
+              {AI_FEATURES.map((f) => {
+                const Icon = f.icon;
+                return (
+                  <Link
+                    key={f.label}
+                    href={f.href}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-text-1 hover:bg-surface"
+                  >
+                    <span className="grid place-items-center w-8 h-8 rounded-full bg-accent-dim border border-accent/30 text-accent shrink-0">
+                      <Icon className="w-4 h-4" />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-sm font-medium">{f.label}</span>
+                      <span className="block text-xs text-text-3 truncate">{f.desc}</span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+
             <div className="pt-3 mt-3 border-t border-border">
               {session?.user ? (
                 <>
@@ -324,6 +459,40 @@ function InfoIcon({ className }) {
       <circle cx="12" cy="12" r="10" />
       <line x1="12" y1="16" x2="12" y2="12" />
       <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+  );
+}
+
+/* Animated AI sparkle — twin sparkles, one big one small. The big sparkle
+   spins gently, the small one pulses. When `spinning` is true (dropdown
+   open) the rotation accelerates. */
+function AiSparkIcon({ className, spinning = false }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden
+      style={{
+        animation: spinning ? "spin 1.6s linear infinite" : "none",
+      }}
+    >
+      <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z" />
+      <path d="M19 14l.75 2.25L22 17l-2.25.75L19 20l-.75-2.25L16 17l2.25-.75L19 14z" opacity="0.7" />
+      <path d="M5 15l.6 1.8L7.4 17.4 5.6 18l-.6 1.8-.6-1.8L2.6 17.4 4.4 16.8 5 15z" opacity="0.5" />
+    </svg>
+  );
+}
+
+/* Document with bullets — represents AI Pitch */
+function AiPitchIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="9" y1="13" x2="15" y2="13" />
+      <line x1="9" y1="17" x2="15" y2="17" />
     </svg>
   );
 }

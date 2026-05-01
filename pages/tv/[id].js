@@ -25,7 +25,7 @@ import {
   pickProviders,
 } from "../../lib/tmdb";
 
-export default function TVDetailPage({ tv, trailer, providers, similar = [], cast = [], crew = [] }) {
+export default function TVDetailPage({ tv, trailer, providers, similar = [], cast = [], crew = [], productionCompanies = [], keywords = [] }) {
   const [trailerOpen, setTrailerOpen] = useState(false);
   if (!tv) return null;
 
@@ -204,9 +204,19 @@ export default function TVDetailPage({ tv, trailer, providers, similar = [], cas
               // overview
             </p>
             <h2 className="font-display text-2xl md:text-4xl mb-4">The Story</h2>
+
+            {/* Original name (if different) */}
+            {tv.original_name && tv.original_name !== tv.name && (
+              <p className="mb-4 text-sm text-text-3 font-mono">
+                Original title:{" "}
+                <span className="text-text-2">{tv.original_name}</span>
+              </p>
+            )}
+
             <p className="text-base md:text-lg leading-relaxed text-text-1/90 max-w-3xl">
               {tv.overview || "No overview available for this title yet."}
             </p>
+
             {(tv.genres || []).length > 0 && (
               <div className="mt-6 flex flex-wrap gap-2">
                 {tv.genres.map((g) => (
@@ -214,15 +224,113 @@ export default function TVDetailPage({ tv, trailer, providers, similar = [], cas
                 ))}
               </div>
             )}
-            {writers.length > 0 && (
-              <div className="mt-7 flex flex-wrap gap-x-8 gap-y-3 text-sm">
-                <div>
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-text-3 mb-0.5">
-                    Written By
-                  </p>
-                  <p className="text-text-1">
-                    {writers.slice(0, 3).map((w) => w.name).join(", ")}
-                  </p>
+
+            {/* Crew details */}
+            {(writers.length > 0 || crew.length > 0) && (
+              <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-5 text-sm">
+                {writers.length > 0 && (
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-text-3 mb-1">
+                      Written By
+                    </p>
+                    <p className="text-text-1 leading-snug">
+                      {writers.slice(0, 3).map((w) => w.name).join(", ")}
+                    </p>
+                  </div>
+                )}
+                {crew.find((c) => c.job?.includes("Producer")) && (
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-text-3 mb-1">
+                      Producer
+                    </p>
+                    <p className="text-text-1 leading-snug">
+                      {crew
+                        .filter((c) => c.job?.includes("Producer"))
+                        .slice(0, 2)
+                        .map((c) => c.name)
+                        .join(", ")}
+                    </p>
+                  </div>
+                )}
+                {crew.find((c) => c.job?.includes("Cinematography") || c.job?.includes("Photography")) && (
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-text-3 mb-1">
+                      Cinematography
+                    </p>
+                    <p className="text-text-1 leading-snug">
+                      {crew.find((c) => c.job?.includes("Cinematography") || c.job?.includes("Photography"))?.name}
+                    </p>
+                  </div>
+                )}
+                {crew.find((c) => c.job?.includes("Music")) && (
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-text-3 mb-1">
+                      Music
+                    </p>
+                    <p className="text-text-1 leading-snug">
+                      {crew.find((c) => c.job?.includes("Music"))?.name}
+                    </p>
+                  </div>
+                )}
+                {tv.status && tv.status !== "Released" && tv.status !== "Ended" && (
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-text-3 mb-1">
+                      Status
+                    </p>
+                    <p className="text-accent leading-snug">{tv.status}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Themes (TMDB keywords) */}
+            {keywords && keywords.length > 0 && (
+              <div className="mt-8">
+                <p className="font-mono text-[10px] uppercase tracking-widest text-text-3 mb-3">
+                  Themes
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {keywords.slice(0, 12).map((k) => (
+                    <span
+                      key={k.id}
+                      className="text-xs px-3 py-1 rounded-full bg-elevated border border-border text-text-2"
+                    >
+                      {k.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Production House */}
+            {productionCompanies && productionCompanies.length > 0 && (
+              <div className="mt-8">
+                <p className="font-mono text-[10px] uppercase tracking-widest text-text-3 mb-3">
+                  Production House
+                </p>
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+                  {productionCompanies.map((p) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center gap-2.5"
+                      title={p.name}
+                    >
+                      {p.logo_path ? (
+                        <Image
+                          src={`https://image.tmdb.org/t/p/w200${p.logo_path}`}
+                          alt={p.name}
+                          width={70}
+                          height={28}
+                          className="object-contain h-6 md:h-7 w-auto opacity-80 hover:opacity-100 transition"
+                          style={{ filter: "brightness(1.6) contrast(1.1)" }}
+                        />
+                      ) : (
+                        <span className="text-sm text-text-2 px-3 py-1 rounded bg-elevated border border-border">
+                          {p.name}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -328,6 +436,20 @@ export async function getServerSideProps({ params, res }) {
       profile_path: c.profile_path || null,
     }));
 
+    const productionCompanies = (tv.production_companies || [])
+      .filter((p) => p.name)
+      .slice(0, 6)
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        logo_path: p.logo_path || null,
+        origin_country: p.origin_country || null,
+      }));
+
+    const keywords = (tv.keywords?.results || tv.keywords?.keywords || [])
+      .slice(0, 12)
+      .map((k) => ({ id: k.id, name: k.name }));
+
     if (res) {
       res.setHeader(
         "Cache-Control",
@@ -352,6 +474,8 @@ export async function getServerSideProps({ params, res }) {
           vote_average: tv.vote_average,
           vote_count: tv.vote_count,
           genres: tv.genres || [],
+          status: tv.status || null,
+          original_language: tv.original_language || null,
           origin_country: tv.origin_country || [],
           spoken_languages: tv.spoken_languages || [],
           created_by: tv.created_by || [],
@@ -361,6 +485,8 @@ export async function getServerSideProps({ params, res }) {
         similar,
         cast,
         crew,
+        productionCompanies,
+        keywords,
       },
     };
   } catch (err) {

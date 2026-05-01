@@ -41,7 +41,7 @@ export default function HomePage({
       <Navbar />
 
       {/* ──── HERO — Moctale-style poster wall ─────────────── */}
-      <section className="relative pt-16 pb-4 md:pb-20 overflow-hidden">
+      <section className="relative pt-16 pb-0 overflow-hidden">
         {/* Poster walls — two rows scrolling in opposite directions */}
         <div className="absolute inset-x-0 top-0 bottom-0 pointer-events-none overflow-hidden">
           <div className="absolute inset-0 purple-wash-top" />
@@ -65,8 +65,8 @@ export default function HomePage({
           <div className="absolute inset-0 bg-gradient-to-r from-bg via-transparent to-bg" />
         </div>
 
-        {/* Hero content — gap-tightened on mobile */}
-        <div className="container-x relative z-10 md:min-h-[60vh] flex flex-col items-center justify-center text-center pt-12 md:pt-32">
+        {/* Hero content — fills viewport on mobile, fixed height on desktop */}
+        <div className="container-x relative z-10 min-h-[calc(100vh-4rem)] md:min-h-[70vh] flex flex-col items-center justify-center text-center py-8 md:py-16">
           {/* VibesAI promo badge — animated, replaces old taglines */}
           <Link
             href="/vibes"
@@ -131,23 +131,26 @@ export default function HomePage({
           {/* Creator credit strip */}
           <Link
             href="/about"
-            className="mt-8 md:mt-10 group inline-flex items-center gap-3 px-4 py-2 rounded-full bg-surface/60 backdrop-blur border border-border hover:border-accent transition-all btn-press animate-fade-in"
+            className="mt-8 md:mt-10 group inline-flex items-center gap-3 px-2 py-1.5 pr-4 rounded-full bg-surface/60 backdrop-blur border border-border hover:border-accent transition-all btn-press animate-fade-in"
           >
             <span
-              className="grid place-items-center w-7 h-7 rounded-full text-white font-display text-xs shrink-0"
-              style={{
-                background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%)",
-                boxShadow: "0 0 12px -2px var(--accent-glow)",
-              }}
+              className="relative grid place-items-center w-7 h-7 rounded-full overflow-hidden border border-accent/30 shrink-0"
+              style={{ boxShadow: "0 0 12px -2px var(--accent-glow)" }}
               aria-hidden
             >
-              A
+              <Image
+                src="/ayush.jpg"
+                alt=""
+                fill
+                sizes="28px"
+                className="object-cover"
+              />
             </span>
             <span className="text-sm text-text-2 group-hover:text-text-1 transition-colors">
-              Made by <span className="text-accent font-medium">Ayush</span>
+              About the <span className="text-accent font-medium">creator</span>
             </span>
             <span className="hidden sm:inline text-text-3 text-xs font-mono uppercase tracking-widest border-l border-border pl-3 group-hover:text-accent transition-colors">
-              About →
+              →
             </span>
           </Link>
         </div>
@@ -155,114 +158,6 @@ export default function HomePage({
 
       <main className="bg-bg pb-24 relative">
         <div className="container-x">
-          {/* ──── Powered by AI — 3-card feature showcase ─── */}
-          <section className="mt-4 md:mt-12 mb-2 md:mb-4">
-            <div className="text-center mb-6 md:mb-8">
-              <p className="font-mono text-[10px] md:text-xs uppercase tracking-[0.3em] text-accent mb-2">
-                ✦ Powered by AI
-              </p>
-              <h2 className="font-display text-2xl md:text-4xl text-text-1">
-                Three ways to find your next watch.
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-              {/* VibesAI */}
-              <Link
-                href="/vibes"
-                className="group relative rounded-2xl bg-surface border border-border p-5 md:p-6 hover:border-accent transition-all overflow-hidden btn-press"
-              >
-                <div
-                  aria-hidden
-                  className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-accent-dim blur-3xl pointer-events-none group-hover:bg-accent/30 transition-colors"
-                />
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-accent-dim border border-accent/30 grid place-items-center mb-3 group-hover:scale-110 transition-transform">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-accent" aria-hidden>
-                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                    </svg>
-                  </div>
-                  <p className="font-mono text-[10px] uppercase tracking-widest2 text-accent mb-1.5">
-                    VibesAI
-                  </p>
-                  <h3 className="font-display text-xl text-text-1 mb-1.5">
-                    Describe a mood.
-                  </h3>
-                  <p className="text-sm text-text-2 leading-relaxed mb-3">
-                    "Cozy rainy-day pick", "thriller that won't end sad" — get
-                    8 perfect matches.
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-widest text-accent group-hover:translate-x-0.5 transition-transform">
-                    Try it <span aria-hidden>→</span>
-                  </span>
-                </div>
-              </Link>
-
-              {/* AI Pitch — preview card */}
-              <div className="group relative rounded-2xl bg-surface border border-border p-5 md:p-6 overflow-hidden">
-                <div
-                  aria-hidden
-                  className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-accent-dim blur-3xl pointer-events-none animate-pulse-slow"
-                />
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-accent-dim border border-accent/30 grid place-items-center mb-3">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent" aria-hidden>
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <line x1="9" y1="13" x2="15" y2="13" />
-                      <line x1="9" y1="17" x2="15" y2="17" />
-                    </svg>
-                  </div>
-                  <p className="font-mono text-[10px] uppercase tracking-widest2 text-accent mb-1.5">
-                    AI Pitch
-                  </p>
-                  <h3 className="font-display text-xl text-text-1 mb-1.5">
-                    Why watch this?
-                  </h3>
-                  <p className="text-sm text-text-2 leading-relaxed mb-3">
-                    Open any film &mdash; get a spoiler-free 3-bullet take, generated
-                    instantly. No marketing spin.
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-widest text-text-3">
-                    On every detail page
-                  </span>
-                </div>
-              </div>
-
-              {/* AI Match */}
-              <Link
-                href="/match"
-                className="group relative rounded-2xl bg-surface border border-border p-5 md:p-6 hover:border-accent transition-all overflow-hidden btn-press"
-              >
-                <div
-                  aria-hidden
-                  className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-accent-dim blur-3xl pointer-events-none group-hover:bg-accent/30 transition-colors"
-                />
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-accent-dim border border-accent/30 grid place-items-center mb-3 group-hover:scale-110 transition-transform">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent" aria-hidden>
-                      <circle cx="6" cy="12" r="3" />
-                      <circle cx="18" cy="12" r="3" />
-                      <line x1="9" y1="12" x2="15" y2="12" />
-                    </svg>
-                  </div>
-                  <p className="font-mono text-[10px] uppercase tracking-widest2 text-accent mb-1.5">
-                    AI Match
-                  </p>
-                  <h3 className="font-display text-xl text-text-1 mb-1.5">
-                    Find the bridge.
-                  </h3>
-                  <p className="text-sm text-text-2 leading-relaxed mb-3">
-                    Two films you loved → 5 picks that sit at the intersection of
-                    both, with reasoning.
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-widest text-accent group-hover:translate-x-0.5 transition-transform">
-                    Try it <span aria-hidden>→</span>
-                  </span>
-                </div>
-              </Link>
-            </div>
-          </section>
-
           {/* ──── Trending row ─────────────────────────────── */}
           <HorizontalScrollRow
             title="Trending Now"

@@ -1,8 +1,8 @@
 // CineTales — /about page.
-// Brief project description + prominent "About the Creator" section
-// with bio, socials, and tech stack.
+// "About the creator" headline, photo avatar, social pills, no tech stack.
 
 import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -60,36 +60,41 @@ export default function AboutPage() {
             />
             <div className="relative">
               <p className="text-mono text-xs uppercase tracking-[0.25em] text-accent mb-3">
-                // about the creator
+                // the creator
               </p>
-              <h2 className="font-display text-4xl md:text-5xl text-text-1 mb-6 leading-tight">
-                Made by Ayush.
+              <h2 className="font-display text-4xl md:text-5xl text-text-1 mb-8 leading-tight">
+                About the creator.
               </h2>
 
               <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
-                {/* Avatar bubble */}
+                {/* Photo avatar */}
                 <div className="shrink-0">
                   <div
-                    className="w-24 h-24 md:w-28 md:h-28 rounded-full grid place-items-center text-white font-display text-4xl shadow-lg"
+                    className="relative w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-accent/40"
                     style={{
-                      background:
-                        "linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%)",
-                      boxShadow: "0 8px 32px -8px var(--accent-glow)",
+                      boxShadow:
+                        "0 0 32px -4px var(--accent-glow), 0 8px 24px -8px rgba(0,0,0,0.5)",
                     }}
-                    aria-hidden
                   >
-                    A
+                    <Image
+                      src="/ayush.jpg"
+                      alt="Ayush"
+                      fill
+                      sizes="(max-width: 768px) 112px, 128px"
+                      className="object-cover"
+                      priority
+                    />
                   </div>
                 </div>
 
                 {/* Bio */}
                 <div className="flex-1 min-w-0 space-y-4 text-text-2 leading-relaxed">
                   <p>
-                    Hi, I&rsquo;m Ayush — a B.Tech ECE student and a Programmer Analyst
-                    Trainee at Cognizant working in the Salesforce domain. CineTales is a
-                    side project I built because I wanted a single tab where I could
-                    figure out what to watch tonight without bouncing between five
-                    different apps.
+                    <span className="text-text-1 font-medium">I&rsquo;m Ayush</span> — a
+                    B.Tech ECE student and a Programmer Analyst Trainee at Cognizant
+                    working in the Salesforce domain. CineTales is a side project I
+                    built because I wanted a single tab where I could figure out what
+                    to watch tonight without bouncing between five different apps.
                   </p>
                   <p>
                     I love building polished, fast web tools — usually with vanilla JS
@@ -125,31 +130,6 @@ export default function AboutPage() {
             </div>
           </section>
 
-          {/* ─── TECH STACK ─────────────────────────────── */}
-          <section className="mb-16">
-            <p className="text-mono text-xs uppercase tracking-[0.25em] text-text-3 mb-4">
-              // built with
-            </p>
-            <ul className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {[
-                { name: "TMDB", note: "Movie & TV data" },
-                { name: "Groq", note: "AI inference" },
-                { name: "Next.js", note: "React framework" },
-                { name: "Vercel", note: "Hosting" },
-                { name: "Postgres", note: "Watchlist & ratings" },
-                { name: "Tailwind", note: "Styling" },
-              ].map((t) => (
-                <li
-                  key={t.name}
-                  className="bg-surface border border-border rounded-xl p-4 hover:border-border-light transition"
-                >
-                  <p className="font-display text-xl text-text-1">{t.name}</p>
-                  <p className="text-mono text-xs text-text-3 mt-1">{t.note}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-
           {/* ─── ATTRIBUTION + CTA ──────────────────────── */}
           <section className="border-t border-border pt-10">
             <p className="text-text-3 text-sm leading-relaxed mb-6">
@@ -182,10 +162,10 @@ export default function AboutPage() {
                 Start exploring →
               </Link>
               <Link
-                href="/match"
+                href="/vibes"
                 className="px-6 py-3 rounded-full bg-surface border border-border-light text-text-1 hover:border-accent hover:text-accent btn-press"
               >
-                ✦ Try AI Match
+                ✦ Try VibesAI
               </Link>
             </div>
           </section>
