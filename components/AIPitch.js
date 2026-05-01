@@ -1,15 +1,17 @@
 // CineTales — AIPitch component.
-// Auto-generates a spoiler-free 3-bullet AI pitch from /api/ai-pitch on mount.
-// No click required — users always see something. Caches per title via key.
+// Click-to-generate: user must tap the button to fetch a 3-bullet
+// spoiler-free AI pitch from /api/ai-pitch. No auto-fetch on mount —
+// keeps Groq API usage low.
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function AIPitch({ title, year, overview, genres = [], type = "movie" }) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [bullets, setBullets] = useState(null);
   const [error, setError] = useState("");
 
   async function generate() {
+    if (loading || bullets) return;
     setLoading(true);
     setError("");
     try {
@@ -28,14 +30,6 @@ export default function AIPitch({ title, year, overview, genres = [], type = "mo
     }
   }
 
-  // Auto-trigger on mount and when title changes
-  useEffect(() => {
-    if (!title) return;
-    setBullets(null);
-    generate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, year, type]);
-
   return (
     <div className="rounded-2xl md:rounded-3xl bg-surface border border-accent/30 p-5 md:p-7 relative overflow-hidden">
       {/* Animated accent corners + glow ring */}
@@ -46,7 +40,7 @@ export default function AIPitch({ title, year, overview, genres = [], type = "mo
         className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent to-transparent"
       />
 
-      <div className="relative flex items-start justify-between gap-4 mb-4 md:mb-5">
+      <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4 md:mb-5">
         <div className="min-w-0">
           <p className="font-mono text-[10px] md:text-[11px] uppercase tracking-widest2 text-accent mb-1.5 flex items-center gap-1.5">
             <span className="relative grid place-items-center w-3 h-3">
@@ -59,9 +53,27 @@ export default function AIPitch({ title, year, overview, genres = [], type = "mo
             Why watch this?
           </h3>
           <p className="text-xs md:text-sm text-text-3 mt-1">
-            Spoiler-free, AI-generated in three lines.
+            Tap below for a spoiler-free 3-bullet take.
           </p>
         </div>
+
+        {/* Generate button — only shown before first generation */}
+        {!bullets && !loading && !error && (
+          <button
+            onClick={generate}
+            className="relative shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent text-white text-sm font-medium hover:bg-accent-hover btn-press overflow-hidden group whitespace-nowrap self-start"
+            style={{ boxShadow: "0 0 24px -6px var(--accent-glow)" }}
+          >
+            <span
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out pointer-events-none"
+            />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="relative" aria-hidden>
+              <path d="M12 1.5l2.2 6.6 6.6 2.2-6.6 2.2L12 19.1l-2.2-6.6L3.2 10.3l6.6-2.2L12 1.5z" />
+            </svg>
+            <span className="relative">Generate</span>
+          </button>
+        )}
       </div>
 
       {loading && (
