@@ -153,23 +153,14 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile actions — search icon + hamburger */}
-        <div className="md:hidden ml-auto flex items-center gap-1">
-          <Link
-            href="/search"
-            aria-label="Search"
-            className="p-2 rounded-lg text-text-1 hover:bg-surface hover:text-accent btn-press"
-          >
-            <SearchIcon className="w-5 h-5" />
-          </Link>
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            className="p-2 rounded-lg text-text-1 hover:bg-surface btn-press"
-            aria-label="Menu"
-          >
-            {menuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
-          </button>
-        </div>
+        {/* Mobile menu button — search is handled by the always-visible button above */}
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          className="md:hidden p-2 rounded-lg text-text-1 hover:bg-surface btn-press"
+          aria-label="Menu"
+        >
+          {menuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+        </button>
       </div>
 
       {/* Mobile drawer */}
