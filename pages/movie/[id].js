@@ -13,6 +13,7 @@ import GenreTag from "../../components/GenreTag";
 import RatingControls from "../../components/RatingControls";
 import WatchlistButton from "../../components/WatchlistButton";
 import WatchedButton from "../../components/WatchedButton";
+import TrailerButton from "../../components/TrailerButton";
 import TrailerModal from "../../components/TrailerModal";
 import WatchProviders from "../../components/WatchProviders";
 import AIPitch from "../../components/AIPitch";
@@ -83,34 +84,23 @@ export default function MovieDetailPage({
             <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-bg/30" />
             <div className="absolute inset-0 bg-gradient-to-r from-bg/80 via-transparent to-bg/50" />
 
-            {/* Play trailer button — center, always visible */}
-            <button
-              onClick={() => {
-                if (trailer) {
-                  setTrailerOpen(true);
-                } else {
-                  // No TMDB trailer — open YouTube search in a new tab
-                  const q = encodeURIComponent(`${movie.title} ${year || ""} official trailer`);
-                  window.open(`https://www.youtube.com/results?search_query=${q}`, "_blank", "noopener,noreferrer");
-                }
-              }}
-              aria-label={trailer ? `Play ${movie.title} trailer` : `Search YouTube for ${movie.title} trailer`}
-              className="absolute inset-0 grid place-items-center group"
-            >
-              <span
-                className="relative grid place-items-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-accent text-white shadow-2xl group-hover:scale-110 transition-transform animate-pulse-accent"
-                style={{ boxShadow: "0 0 60px -8px var(--accent-glow), 0 8px 32px -8px rgba(0,0,0,0.5)" }}
+            {/* Play trailer button — center, only when trailer exists */}
+            {trailer && (
+              <button
+                onClick={() => setTrailerOpen(true)}
+                aria-label={`Play ${movie.title} trailer`}
+                className="absolute inset-0 grid place-items-center group"
               >
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" className="ml-1.5" aria-hidden>
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                {!trailer && (
-                  <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-mono uppercase tracking-widest text-text-2 bg-bg/80 backdrop-blur px-2.5 py-1 rounded-full border border-border-light">
-                    Search on YouTube
-                  </span>
-                )}
-              </span>
-            </button>
+                <span
+                  className="grid place-items-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-accent text-white shadow-2xl group-hover:scale-110 transition-transform animate-pulse-accent"
+                  style={{ boxShadow: "0 0 60px -8px var(--accent-glow), 0 8px 32px -8px rgba(0,0,0,0.5)" }}
+                >
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" className="ml-1.5" aria-hidden>
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+              </button>
+            )}
           </div>
 
           {/* Floating info card overlapping backdrop */}
@@ -196,15 +186,11 @@ export default function MovieDetailPage({
               </div>
 
               <div className="flex flex-wrap gap-3">
-                {trailer && (
-                  <button
-                    onClick={() => setTrailerOpen(true)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent text-white font-medium hover:bg-accent-hover btn-press"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-                    Trailer
-                  </button>
-                )}
+                <TrailerButton
+                  trailer={trailer}
+                  title={movie.title}
+                  year={year}
+                />
                 <WatchedButton
                   mediaId={movie.id}
                   mediaType="movie"
