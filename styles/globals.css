@@ -136,6 +136,10 @@ select:-webkit-autofill {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
+@keyframes bounceSoft {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
 @keyframes blinkCaret {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }

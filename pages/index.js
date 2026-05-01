@@ -5,6 +5,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
+import { useSession, signIn } from "next-auth/react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import HorizontalScrollRow from "../components/HorizontalScrollRow";
@@ -29,6 +30,9 @@ export default function HomePage({
   criticallyAcclaimed = [],
   hiddenGems = [],
 }) {
+  const { data: session, status } = useSession();
+  const loggedOut = status === "unauthenticated";
+
   return (
     <>
       <Head>
@@ -128,10 +132,35 @@ export default function HomePage({
             <span>spoiler-free</span>
           </div>
 
+          {/* Sign in / Sign up — mobile-only, logged-out users */}
+          {loggedOut && (
+            <div className="md:hidden mt-8 w-full max-w-xs animate-fade-in">
+              <div className="rounded-2xl bg-surface/80 backdrop-blur border border-border p-4 text-center">
+                <p className="text-xs text-text-3 mb-3 leading-relaxed">
+                  Save your watchlist, track ratings, comment on films
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => signIn("google", { callbackUrl: "/" })}
+                    className="flex-1 px-4 py-2.5 rounded-full bg-accent text-white text-sm font-medium hover:bg-accent-hover btn-press"
+                  >
+                    Sign in
+                  </button>
+                  <Link
+                    href="/login"
+                    className="flex-1 px-4 py-2.5 rounded-full bg-elevated border border-border-light text-text-1 text-sm font-medium hover:border-accent hover:text-accent btn-press"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Creator credit strip */}
           <Link
             href="/about"
-            className="mt-8 md:mt-10 group inline-flex items-center gap-3 px-2 py-1.5 pr-4 rounded-full bg-surface/60 backdrop-blur border border-border hover:border-accent transition-all btn-press animate-fade-in"
+            className="mt-6 md:mt-10 group inline-flex items-center gap-3 px-2 py-1.5 pr-4 rounded-full bg-surface/60 backdrop-blur border border-border hover:border-accent transition-all btn-press animate-fade-in"
           >
             <span
               className="relative grid place-items-center w-7 h-7 rounded-full overflow-hidden border border-accent/30 shrink-0"
@@ -153,6 +182,19 @@ export default function HomePage({
               →
             </span>
           </Link>
+
+          {/* Scroll affordance — animated chevron pointing to content below.
+              Mobile only since desktop hero is shorter. */}
+          <div className="md:hidden mt-auto pt-8 flex flex-col items-center gap-2 text-text-3 animate-fade-in">
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em]">
+              Scroll for trending picks
+            </p>
+            <div className="w-10 h-10 grid place-items-center animate-bounce-soft">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent" aria-hidden>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+          </div>
         </div>
       </section>
 
