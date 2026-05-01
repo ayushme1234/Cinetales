@@ -13,7 +13,6 @@ const NAV = [
   { href: "/trending", label: "Trending", icon: FlameIcon },
   { href: "/vibes", label: "VibesAI", icon: SparklesIcon },
   { href: "/match", label: "AI Match", icon: BridgeIcon },
-  { href: "/search", label: "Search", icon: SearchIcon },
 ];
 
 export default function Navbar() {
@@ -78,6 +77,16 @@ export default function Navbar() {
             );
           })}
         </nav>
+
+        {/* ALWAYS-VISIBLE search icon — works on mobile + desktop */}
+        <Link
+          href="/search"
+          className="ml-auto md:ml-0 mr-2 md:mr-3 w-10 h-10 grid place-items-center rounded-full bg-surface border border-border text-text-1 hover:border-accent hover:text-accent btn-press"
+          aria-label="Search"
+          title="Search"
+        >
+          <SearchIcon className="w-4 h-4" />
+        </Link>
 
         {/* Profile / auth — desktop */}
         <div className="hidden md:block relative">
@@ -144,14 +153,23 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile menu button */}
-        <button
-          onClick={() => setMenuOpen((v) => !v)}
-          className="md:hidden ml-auto p-2 rounded-lg text-text-1 hover:bg-surface btn-press"
-          aria-label="Menu"
-        >
-          {menuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
-        </button>
+        {/* Mobile actions — search icon + hamburger */}
+        <div className="md:hidden ml-auto flex items-center gap-1">
+          <Link
+            href="/search"
+            aria-label="Search"
+            className="p-2 rounded-lg text-text-1 hover:bg-surface hover:text-accent btn-press"
+          >
+            <SearchIcon className="w-5 h-5" />
+          </Link>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="p-2 rounded-lg text-text-1 hover:bg-surface btn-press"
+            aria-label="Menu"
+          >
+            {menuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer */}

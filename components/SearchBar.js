@@ -1,6 +1,14 @@
+// CineTales — SearchBar.
+// Big Moctale-style search input with proper dark theme bg + text colors.
+
 import { useState, useEffect, useRef } from "react";
 
-export default function SearchBar({ value, onChange, placeholder = "Search films, series, anime…", autoFocus = false }) {
+export default function SearchBar({
+  value,
+  onChange,
+  placeholder = "Search films, series, anime…",
+  autoFocus = false,
+}) {
   const [q, setQ] = useState(value || "");
   const ref = useRef(null);
 
@@ -8,16 +16,29 @@ export default function SearchBar({ value, onChange, placeholder = "Search films
     if (autoFocus && ref.current) ref.current.focus();
   }, [autoFocus]);
 
-  useEffect(() => { setQ(value || ""); }, [value]);
+  useEffect(() => {
+    setQ(value || "");
+  }, [value]);
 
   return (
-    <div className="relative">
-      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-3)]">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <div className="relative group">
+      {/* Search icon */}
+      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-3 group-focus-within:text-accent transition-colors pointer-events-none">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <path d="m21 21-4.3-4.3" />
         </svg>
       </span>
+
       <input
         ref={ref}
         type="text"
@@ -27,17 +48,35 @@ export default function SearchBar({ value, onChange, placeholder = "Search films
           onChange && onChange(e.target.value);
         }}
         placeholder={placeholder}
-        className="!pl-12 !py-4 text-base"
+        className="w-full pl-14 pr-12 py-4 md:py-5 text-base md:text-lg
+                   bg-surface text-text-1 placeholder:text-text-3
+                   border border-border rounded-2xl
+                   focus:border-accent focus:outline-none focus:bg-elevated
+                   transition-colors"
       />
+
+      {/* Clear button */}
       {q && (
         <button
-          onClick={() => { setQ(""); onChange && onChange(""); }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-3)] hover:text-[var(--text-1)]"
-          aria-label="Clear"
+          onClick={() => {
+            setQ("");
+            onChange && onChange("");
+            ref.current?.focus();
+          }}
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-7 h-7 grid place-items-center rounded-full bg-elevated text-text-2 hover:text-text-1 hover:bg-border-light btn-press transition"
+          aria-label="Clear search"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M18 6 6 18M6 6l12 12" />
           </svg>
         </button>
       )}

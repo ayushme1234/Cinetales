@@ -12,6 +12,8 @@ import {
   getTrending,
   getPopularMovies,
   getPopularTV,
+  getNowPlayingMovies,
+  discoverMovies,
   posterUrl,
   getTitle,
   getYear,
@@ -23,6 +25,9 @@ export default function HomePage({
   popularTV,
   posterWall,
   mostInterested,
+  nowPlaying = [],
+  criticallyAcclaimed = [],
+  hiddenGems = [],
 }) {
   return (
     <>
@@ -120,6 +125,17 @@ export default function HomePage({
             forceType="movie"
           />
 
+          {/* ──── Now Playing in Theaters ─────────────────── */}
+          {nowPlaying && nowPlaying.length > 0 && (
+            <HorizontalScrollRow
+              title="In Theaters Now"
+              subtitle="Currently playing on the big screen"
+              href="/discover?type=movie"
+              items={nowPlaying}
+              forceType="movie"
+            />
+          )}
+
           {/* ──── Most Interested rail (BookMyShow-style) ──── */}
           {mostInterested.length > 0 && (
             <section className="mt-16">
@@ -196,6 +212,30 @@ export default function HomePage({
             items={popularTV}
             forceType="tv"
           />
+
+          {/* ──── Critically Acclaimed ─────────────────────── */}
+          {criticallyAcclaimed && criticallyAcclaimed.length > 0 && (
+            <HorizontalScrollRow
+              title="Critically Acclaimed"
+              subtitle="Highest-rated films, vetted by audiences"
+              label="essential watching"
+              href="/discover?type=movie&sortBy=vote_average.desc&minRating=7.5"
+              items={criticallyAcclaimed}
+              forceType="movie"
+            />
+          )}
+
+          {/* ──── Hidden Gems ──────────────────────────────── */}
+          {hiddenGems && hiddenGems.length > 0 && (
+            <HorizontalScrollRow
+              title="Hidden Gems"
+              subtitle="Brilliant films you probably haven't seen"
+              label="underrated picks"
+              href="/discover?type=movie&minRating=7"
+              items={hiddenGems}
+              forceType="movie"
+            />
+          )}
 
           {/* ──── AI Features promo ────────────────────────── */}
           <section className="mt-20 grid md:grid-cols-2 gap-5">
@@ -324,12 +364,31 @@ export async function getServerSideProps({ res }) {
   let popularTV = [];
   let posterWall = [];
   let mostInterested = [];
+  let nowPlaying = [];
+  let criticallyAcclaimed = [];
+  let hiddenGems = [];
 
   try {
-    const [t, pm, pt] = await Promise.all([
+    const currentYear = new Date().getFullYear();
+
+    const [t, pm, pt, np, acclaimed, gems] = await Promise.all([
       getTrending("week"),
       getPopularMovies(1),
       getPopularTV(1),
+      // Now playing in theaters
+      getNowPlayingMovies(1).catch(() => ({ results: [] })),
+      // Critically acclaimed: very high rated with lots of votes (current year)
+      discoverMovies({
+        sortBy: "vote_average.desc",
+        minRating: 7.5,
+        page: 1,
+      }).catch(() => ({ results: [] })),
+      // Hidden gems: high rated but lower popularity
+      discoverMovies({
+        sortBy: "vote_average.desc",
+        minRating: 7.0,
+        page: 2, // page 2 to skip the most-popular high-rated films
+      }).catch(() => ({ results: [] })),
     ]);
 
     trending = (t.results || [])
@@ -337,12 +396,35 @@ export async function getServerSideProps({ res }) {
       .slice(0, 18);
     popularMovies = (pm.results || []).slice(0, 18);
     popularTV = (pt.results || []).slice(0, 18);
+    nowPlaying = (np.results || []).slice(0, 14);
 
-    // Build poster wall — 30 unique posters from all sources
+    // Critically acclaimed — TMDB sort_by=vote_average + min vote count handled by API
+    criticallyAcclaimed = (acclaimed.results || [])
+      .filter((m) => (m.vote_count || 0) >= 200) // ensure enough votes
+      .slice(0, 14);
+
+    // Hidden gems — high score but lower popularity (truly underrated)
+    hiddenGems = (gems.results || [])
+      .filter(
+        (m) =>
+          (m.vote_count || 0) >= 100 &&
+          (m.popularity || 0) < 50 &&
+          (m.vote_average || 0) >= 7.0
+      )
+      .slice(0, 14);
+
+    // If hidden gems comes up empty (rare), fall back to acclaimed page 2
+    if (hiddenGems.length < 6) {
+      hiddenGems = (gems.results || []).slice(0, 14);
+    }
+
+    // Build poster wall — 30 unique posters from multiple sources for variety
     const wallPool = [
       ...trending,
       ...popularMovies,
       ...popularTV,
+      ...nowPlaying,
+      ...criticallyAcclaimed,
     ].filter((x) => x.poster_path);
     const seen = new Set();
     posterWall = [];
@@ -372,6 +454,9 @@ export async function getServerSideProps({ res }) {
       popularTV,
       posterWall,
       mostInterested,
+      nowPlaying,
+      criticallyAcclaimed,
+      hiddenGems,
     },
   };
 }

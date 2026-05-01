@@ -83,20 +83,34 @@ export default function MovieDetailPage({
             <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-bg/30" />
             <div className="absolute inset-0 bg-gradient-to-r from-bg/80 via-transparent to-bg/50" />
 
-            {/* Play trailer button — center */}
-            {trailer && (
-              <button
-                onClick={() => setTrailerOpen(true)}
-                aria-label={`Play ${movie.title} trailer`}
-                className="absolute inset-0 grid place-items-center group"
+            {/* Play trailer button — center, always visible */}
+            <button
+              onClick={() => {
+                if (trailer) {
+                  setTrailerOpen(true);
+                } else {
+                  // No TMDB trailer — open YouTube search in a new tab
+                  const q = encodeURIComponent(`${movie.title} ${year || ""} official trailer`);
+                  window.open(`https://www.youtube.com/results?search_query=${q}`, "_blank", "noopener,noreferrer");
+                }
+              }}
+              aria-label={trailer ? `Play ${movie.title} trailer` : `Search YouTube for ${movie.title} trailer`}
+              className="absolute inset-0 grid place-items-center group"
+            >
+              <span
+                className="relative grid place-items-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-accent text-white shadow-2xl group-hover:scale-110 transition-transform animate-pulse-accent"
+                style={{ boxShadow: "0 0 60px -8px var(--accent-glow), 0 8px 32px -8px rgba(0,0,0,0.5)" }}
               >
-                <span className="grid place-items-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent text-white shadow-2xl group-hover:scale-110 transition-transform animate-pulse-accent">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="ml-1">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </span>
-              </button>
-            )}
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" className="ml-1.5" aria-hidden>
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                {!trailer && (
+                  <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-mono uppercase tracking-widest text-text-2 bg-bg/80 backdrop-blur px-2.5 py-1 rounded-full border border-border-light">
+                    Search on YouTube
+                  </span>
+                )}
+              </span>
+            </button>
           </div>
 
           {/* Floating info card overlapping backdrop */}

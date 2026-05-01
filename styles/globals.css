@@ -32,6 +32,11 @@
 /* ─── Base ──────────────────────────────────────────────────────────── */
 * { box-sizing: border-box; }
 
+html {
+  /* Tells browsers to render form controls, scrollbars in dark mode */
+  color-scheme: dark;
+}
+
 html, body, #__next {
   background: var(--bg);
   color: var(--text-1);
@@ -48,6 +53,29 @@ body {
 
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; }
+
+/* ─── Form input defaults — prevent white-on-white autofill ───────── */
+input, textarea, select {
+  color: var(--text-1);
+  background-color: var(--surface);
+  font-family: inherit;
+  caret-color: var(--accent);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--text-3);
+  opacity: 1;
+}
+/* Chrome / Safari autofill — force dark surface, light text */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-1) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset !important;
+  caret-color: var(--accent) !important;
+  transition: background-color 600000s ease-in-out 0s;
+}
 
 ::selection {
   background: var(--accent-glow);
