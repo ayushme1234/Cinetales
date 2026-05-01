@@ -51,16 +51,9 @@ export default function RatingControls({ mediaId, mediaType, title, posterPath }
           posterPath,
         }),
       });
-      if (res.ok) {
-        setSavedAt(Date.now());
-      } else {
-        const d = await res.json().catch(() => ({}));
-        alert(`Couldn't save rating: ${d.error || res.status}`);
-        // revert UI to last saved value
-        if (newVibe !== vibe) setVibe(vibe);
-      }
+      if (res.ok) setSavedAt(Date.now());
     } catch (e) {
-      alert(`Network error: ${e.message}`);
+      console.warn("rating save:", e.message);
     } finally {
       setSaving(false);
     }

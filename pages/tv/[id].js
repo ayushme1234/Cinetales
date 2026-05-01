@@ -197,6 +197,17 @@ export default function TVDetailPage({ tv, trailer, providers, similar = [], cas
           </div>
         </section>
 
+        {/* ✦ AI PITCH — FIRST THING USERS SEE */}
+        <section className="container-x mt-10 md:mt-14">
+          <AIPitch
+            title={tv.name || tv.original_name}
+            year={startYear}
+            overview={tv.overview}
+            genres={(tv.genres || []).map((g) => g.name)}
+            type="tv"
+          />
+        </section>
+
         {/* OVERVIEW + VIBE CHART */}
         <section className="container-x mt-12 md:mt-16 grid lg:grid-cols-[1fr_320px] gap-8 lg:gap-10">
           <div className="min-w-0">
@@ -352,16 +363,9 @@ export default function TVDetailPage({ tv, trailer, providers, similar = [], cas
           />
         </section>
 
-        {/* PROVIDERS + AI PITCH */}
-        <section className="container-x mt-5 grid md:grid-cols-2 gap-5">
+        {/* WATCH PROVIDERS */}
+        <section className="container-x mt-5">
           <WatchProviders providers={providers} />
-          <AIPitch
-            title={tv.name || tv.original_name}
-            year={startYear}
-            overview={tv.overview}
-            genres={(tv.genres || []).map((g) => g.name)}
-            type="tv"
-          />
         </section>
 
         {/* CAST */}

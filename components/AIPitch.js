@@ -37,25 +37,29 @@ export default function AIPitch({ title, year, overview, genres = [], type = "mo
   }, [title, year, type]);
 
   return (
-    <div className="rounded-2xl bg-surface border border-border p-5 md:p-6 relative overflow-hidden">
-      {/* Animated accent corner */}
-      <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-accent-dim blur-3xl pointer-events-none animate-pulse-slow" />
+    <div className="rounded-2xl md:rounded-3xl bg-surface border border-accent/30 p-5 md:p-7 relative overflow-hidden">
+      {/* Animated accent corners + glow ring */}
+      <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-accent-dim blur-3xl pointer-events-none animate-pulse-slow" />
+      <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
       <div
         aria-hidden
-        className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent"
+        className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent to-transparent"
       />
 
-      <div className="relative flex items-start justify-between gap-4 mb-4">
+      <div className="relative flex items-start justify-between gap-4 mb-4 md:mb-5">
         <div className="min-w-0">
-          <p className="font-mono text-[10px] uppercase tracking-widest2 text-accent mb-1 flex items-center gap-1.5">
+          <p className="font-mono text-[10px] md:text-[11px] uppercase tracking-widest2 text-accent mb-1.5 flex items-center gap-1.5">
             <span className="relative grid place-items-center w-3 h-3">
               <span className="absolute inset-0 rounded-full bg-accent/40 animate-ping" />
               <span className="relative">✦</span>
             </span>
-            AI Pitch
+            CineAI Pitch
           </p>
-          <p className="text-sm text-text-2">
-            Spoiler-free, 3 bullets, generated for you.
+          <h3 className="font-display text-xl md:text-2xl text-text-1 leading-tight">
+            Why watch this?
+          </h3>
+          <p className="text-xs md:text-sm text-text-3 mt-1">
+            Spoiler-free, AI-generated in three lines.
           </p>
         </div>
       </div>
@@ -90,14 +94,14 @@ export default function AIPitch({ title, year, overview, genres = [], type = "mo
       )}
 
       {!loading && !error && bullets && bullets.length > 0 && (
-        <ul className="relative space-y-2.5 animate-fade-in">
+        <ul className="relative space-y-3 animate-fade-in">
           {bullets.map((b, i) => (
             <li
               key={i}
-              className="flex gap-3 text-sm text-text-1 leading-relaxed"
+              className="flex gap-3 text-sm md:text-base text-text-1 leading-relaxed"
               style={{ animationDelay: `${i * 80}ms` }}
             >
-              <span className="text-accent font-mono shrink-0 mt-0.5">→</span>
+              <span className="text-accent font-mono shrink-0 mt-0.5 text-base md:text-lg">→</span>
               <span>{b}</span>
             </li>
           ))}

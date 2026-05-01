@@ -42,19 +42,15 @@ export default function WatchedButton({ mediaId, mediaType, title, posterPath })
     setLoading(true);
     try {
       if (!inList) {
-        // Insert + mark watched in one step
         const r = await fetch(`/api/watchlist`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaId, mediaType, title, posterPath, watched: true }),
         });
-        if (!r.ok) {
-          const d = await r.json().catch(() => ({}));
-          alert(`Couldn't mark watched: ${d.error || r.status}`);
-          return;
+        if (r.ok) {
+          setInList(true);
+          setWatched(true);
         }
-        setInList(true);
-        setWatched(true);
       } else {
         const newWatched = !watched;
         const r = await fetch(`/api/watchlist`, {
@@ -62,15 +58,10 @@ export default function WatchedButton({ mediaId, mediaType, title, posterPath })
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaId, mediaType, watched: newWatched }),
         });
-        if (!r.ok) {
-          const d = await r.json().catch(() => ({}));
-          alert(`Couldn't update: ${d.error || r.status}`);
-          return;
-        }
-        setWatched(newWatched);
+        if (r.ok) setWatched(newWatched);
       }
     } catch (e) {
-      alert(`Network error: ${e.message}`);
+      console.warn("watched save:", e.message);
     } finally {
       setLoading(false);
     }

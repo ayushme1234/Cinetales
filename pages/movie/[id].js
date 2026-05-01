@@ -210,6 +210,17 @@ export default function MovieDetailPage({
           </div>
         </section>
 
+        {/* ─── ✦ AI PITCH — FIRST THING USERS SEE ─────────── */}
+        <section className="container-x mt-10 md:mt-14">
+          <AIPitch
+            title={movie.title || movie.original_title}
+            year={year}
+            overview={movie.overview}
+            genres={(movie.genres || []).map((g) => g.name)}
+            type="movie"
+          />
+        </section>
+
         {/* ─── OVERVIEW + VIBE CHART ─────────────────────── */}
         <section className="container-x mt-12 md:mt-16 grid lg:grid-cols-[1fr_320px] gap-8 lg:gap-10">
           <div className="min-w-0">
@@ -381,16 +392,9 @@ export default function MovieDetailPage({
           />
         </section>
 
-        {/* ─── WATCH PROVIDERS + AI PITCH ────────────────── */}
-        <section className="container-x mt-5 grid md:grid-cols-2 gap-5">
+        {/* ─── WATCH PROVIDERS ──────────────────────────── */}
+        <section className="container-x mt-5">
           <WatchProviders providers={providers} />
-          <AIPitch
-            title={movie.title || movie.original_title}
-            year={year}
-            overview={movie.overview}
-            genres={(movie.genres || []).map((g) => g.name)}
-            type="movie"
-          />
         </section>
 
         {/* ─── CAST ──────────────────────────────────────── */}

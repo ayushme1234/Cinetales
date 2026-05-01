@@ -39,27 +39,17 @@ export default function WatchlistButton({ mediaId, mediaType, title, posterPath 
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaId, mediaType }),
         });
-        if (!r.ok) {
-          const data = await r.json().catch(() => ({}));
-          alert(`Couldn't remove from watchlist: ${data.error || r.status}`);
-          return;
-        }
-        setAdded(false);
+        if (r.ok) setAdded(false);
       } else {
         const r = await fetch(`/api/watchlist`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaId, mediaType, title, posterPath }),
         });
-        if (!r.ok) {
-          const data = await r.json().catch(() => ({}));
-          alert(`Couldn't add to watchlist: ${data.error || r.status}`);
-          return;
-        }
-        setAdded(true);
+        if (r.ok) setAdded(true);
       }
     } catch (e) {
-      alert(`Network error: ${e.message}`);
+      console.warn("watchlist save:", e.message);
     } finally {
       setLoading(false);
     }
