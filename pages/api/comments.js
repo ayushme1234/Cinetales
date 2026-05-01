@@ -10,7 +10,7 @@
 import { getServerSession } from "next-auth/next";
 import Groq from "groq-sdk";
 import { authOptions } from "./auth/[...nextauth]";
-import { initDb, getPool } from "../../lib/db";
+import { getPool, ensureTables } from "../../lib/db";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -81,7 +81,7 @@ Return ONLY a JSON array with this exact shape, no markdown, no preamble:
 
 export default async function handler(req, res) {
   try {
-    await initDb();
+    await ensureTables();
     const pool = getPool();
 
     if (req.method === "GET") {

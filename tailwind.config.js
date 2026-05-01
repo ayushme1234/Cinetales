@@ -53,6 +53,7 @@ module.exports = {
         "pulse-accent": "pulseAccent 2.4s ease-in-out infinite",
         "pulse-slow": "pulseAccent 4s ease-in-out infinite",
         "bounce-soft": "bounceSoft 2s ease-in-out infinite",
+        "shimmer-sweep": "shimmerSweep 3s ease-in-out infinite",
         shimmer: "shimmer 1.8s infinite",
         float: "float 6s ease-in-out infinite",
       },

@@ -45,32 +45,38 @@ export default function HomePage({
       <Navbar />
 
       {/* ──── HERO — Moctale-style poster wall ─────────────── */}
-      <section className="relative pt-16 pb-0 overflow-hidden">
-        {/* Poster walls — two rows scrolling in opposite directions */}
-        <div className="absolute inset-x-0 top-0 bottom-0 pointer-events-none overflow-hidden">
+      {/* Mobile: vertical split — posters fill top 45vh, content fills bottom.
+          Desktop: classic full-bleed with content overlay. */}
+      <section className="relative pt-16 pb-0 overflow-hidden flex flex-col md:block min-h-[calc(100vh-4rem)] md:min-h-0">
+        {/* MOBILE POSTER STAGE (top half) — visible, less obscured.
+            On desktop this same div absolute-positions over the whole hero. */}
+        <div className="relative md:absolute md:inset-x-0 md:top-0 md:bottom-0 h-[45vh] md:h-auto pointer-events-none overflow-hidden">
           <div className="absolute inset-0 purple-wash-top" />
 
           {/* Row 1 — top */}
-          <div className="absolute top-24 inset-x-0 flex animate-marquee">
+          <div className="absolute top-6 md:top-24 inset-x-0 flex animate-marquee">
             {[...posterWall, ...posterWall].slice(0, 28).map((p, i) => (
               <PosterTile key={`r1-${i}`} src={p} index={i} />
             ))}
           </div>
 
           {/* Row 2 — bottom */}
-          <div className="absolute bottom-12 inset-x-0 flex animate-marquee-reverse">
+          <div className="absolute bottom-6 md:bottom-12 inset-x-0 flex animate-marquee-reverse">
             {[...posterWall.slice().reverse(), ...posterWall.slice().reverse()].slice(0, 28).map((p, i) => (
               <PosterTile key={`r2-${i}`} src={p} index={i} />
             ))}
           </div>
 
-          {/* Vignette overlays for legibility */}
-          <div className="absolute inset-0 bg-gradient-to-b from-bg/40 via-bg/85 to-bg" />
-          <div className="absolute inset-0 bg-gradient-to-r from-bg via-transparent to-bg" />
+          {/* Mobile: only fade the bottom edge so posters stay vivid above.
+              Desktop: full vignettes for legibility behind centered content. */}
+          <div className="absolute inset-0 bg-gradient-to-b from-bg/0 via-transparent md:from-bg/40 md:via-bg/85 to-bg" />
+          <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-bg via-transparent to-bg" />
+          {/* Strong fade-to-bg at very bottom on mobile for clean handoff */}
+          <div className="md:hidden absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-bg" />
         </div>
 
-        {/* Hero content — fills viewport on mobile, fixed height on desktop */}
-        <div className="container-x relative z-10 min-h-[calc(100vh-4rem)] md:min-h-[70vh] flex flex-col items-center justify-center text-center py-8 md:py-16">
+        {/* Hero content — bottom half on mobile, full overlay on desktop */}
+        <div className="container-x relative z-10 flex-1 md:min-h-[70vh] flex flex-col items-center justify-start md:justify-center text-center pt-6 pb-8 md:py-16">
           {/* VibesAI promo badge — animated, replaces old taglines */}
           <Link
             href="/vibes"

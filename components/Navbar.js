@@ -100,35 +100,49 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* ──── AI dropdown — desktop + mobile ─────────── */}
+        {/* ──── CineAI dropdown button — desktop + mobile ─────────── */}
         <div className="ml-auto md:ml-0 relative">
           <button
             onClick={() => {
               setAiOpen((v) => !v);
               setProfileOpen(false);
             }}
-            aria-label="AI features"
+            aria-label="CineAI features"
             aria-expanded={aiOpen}
-            className={`relative w-10 h-10 grid place-items-center rounded-full border btn-press transition-all overflow-hidden ${
+            className={`relative inline-flex items-center gap-1.5 h-10 px-3 md:px-3.5 rounded-full border btn-press transition-all overflow-hidden text-sm font-medium ${
               aiOpen
                 ? "bg-accent text-white border-accent"
-                : "bg-surface border-border text-accent hover:border-accent"
+                : "bg-surface border-accent/40 text-accent hover:border-accent hover:bg-accent-dim"
             }`}
-            style={
-              aiOpen
-                ? { boxShadow: "0 0 18px -2px var(--accent-glow)" }
-                : undefined
-            }
-            title="AI features"
+            style={{
+              boxShadow: aiOpen
+                ? "0 0 20px -2px var(--accent-glow)"
+                : "0 0 14px -4px var(--accent-glow)",
+            }}
+            title="CineAI features"
           >
-            {/* Animated background pulse when closed */}
-            {!aiOpen && (
-              <span
-                aria-hidden
-                className="absolute inset-0 rounded-full bg-accent/15 animate-pulse-slow pointer-events-none"
-              />
-            )}
-            <AiSparkIcon className="w-4 h-4 relative" spinning={aiOpen} />
+            {/* Animated shimmer sweep — runs continuously */}
+            <span
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/25 to-transparent -translate-x-full animate-shimmer-sweep pointer-events-none"
+            />
+            {/* Bold sparkle icon — spins faster when open */}
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-4 h-4 relative shrink-0"
+              aria-hidden
+              style={{
+                animation: aiOpen
+                  ? "spin 1.6s linear infinite"
+                  : "spin 8s linear infinite",
+              }}
+            >
+              <path d="M12 1.5l2.2 6.6 6.6 2.2-6.6 2.2L12 19.1l-2.2-6.6L3.2 10.3l6.6-2.2L12 1.5z" />
+            </svg>
+            <span className="relative font-display tracking-tight">
+              Cine<span className="font-black">AI</span>
+            </span>
           </button>
 
           {aiOpen && (
