@@ -2,7 +2,10 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="mt-24 border-t border-[var(--border)] bg-[#080808]">
+    <footer
+      className="mt-24 border-t border-[var(--border)] bg-[#080808]"
+      style={{ paddingBottom: "var(--safe-bottom)" }}
+    >
       <div className="container-x py-14">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
           <div className="col-span-2 md:col-span-1">

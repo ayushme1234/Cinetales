@@ -5,7 +5,6 @@
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -21,7 +20,7 @@ import {
   getTitle,
   getYear,
 } from "../lib/tmdb";
-import { getRegionFromReq, getRegionInfo, REGIONS, setRegionClient } from "../lib/region";
+import { getRegionFromReq, getRegionInfo } from "../lib/region";
 
 export default function HomePage({
   region = "IN",
@@ -213,14 +212,6 @@ export default function HomePage({
 
       <main className="bg-bg pb-24 relative">
         <div className="container-x">
-          {/* ──── Region picker — works for everyone, no login needed ─────── */}
-          <div className="mt-12 md:mt-16 mb-3 flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-[10px] md:text-xs uppercase tracking-widest2 text-text-3">
-              showing
-            </span>
-            <RegionInlinePicker current={region} />
-          </div>
-
           {/* ──── Popular in {region} — TOP PRIORITY ────────── */}
           {regionMovies && regionMovies.length > 0 && (
             <HorizontalScrollRow
@@ -596,7 +587,14 @@ export async function getServerSideProps({ req, res }) {
   }
 
   if (res) {
-    res.setHeader("Cache-Control", "public, s-maxage=900, stale-while-revalidate=1800");
+    // Region changes via cookie. Tell the CDN to vary the cache by Cookie
+    // so each region gets its own cached version. Also keep s-maxage low
+    // since region updates need to take effect within seconds.
+    res.setHeader("Vary", "Cookie");
+    res.setHeader(
+      "Cache-Control",
+      "private, no-cache, no-store, max-age=0, must-revalidate"
+    );
   }
 
   return {
@@ -614,96 +612,4 @@ export async function getServerSideProps({ req, res }) {
       hiddenGems,
     },
   };
-}
-
-/**
- * Region picker pill rendered on the home page.
- * Clicking opens a popover with all 15 regions. Selecting one writes the
- * cookie and reloads the page so getServerSideProps sees the new region.
- */
-function RegionInlinePicker({ current }) {
-  const [open, setOpen] = useState(false);
-  const info = getRegionInfo(current);
-
-  const select = (code) => {
-    if (code === current) {
-      setOpen(false);
-      return;
-    }
-    setRegionClient(code);
-    // Hard reload so SSR re-runs with the new cookie
-    setTimeout(() => window.location.reload(), 50);
-  };
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-sm transition group ${
-          open
-            ? "bg-elevated border-accent text-text-1"
-            : "bg-surface border-border hover:border-accent text-text-1"
-        }`}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-      >
-        <span className="text-base">{info.flag}</span>
-        <span>{info.name}</span>
-        <span
-          className={`text-text-3 text-xs transition ${
-            open ? "rotate-180 text-accent" : ""
-          }`}
-          aria-hidden
-        >
-          ▾
-        </span>
-      </button>
-
-      {open && (
-        <>
-          {/* Click-outside backdrop */}
-          <button
-            aria-label="Close"
-            className="fixed inset-0 z-40 cursor-default"
-            onClick={() => setOpen(false)}
-          />
-          <div
-            role="listbox"
-            className="absolute z-50 left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-elevated border border-border rounded-2xl shadow-2xl py-2"
-            style={{
-              boxShadow: "0 16px 48px -8px rgba(0,0,0,0.6), 0 0 32px -8px var(--accent-glow)",
-            }}
-          >
-            <p className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest2 text-text-3 border-b border-border mb-1">
-              choose region
-            </p>
-            {REGIONS.map((r) => {
-              const active = r.code === current;
-              return (
-                <button
-                  key={r.code}
-                  role="option"
-                  aria-selected={active}
-                  onClick={() => select(r.code)}
-                  className={`w-full text-left flex items-center gap-3 px-4 py-2 text-sm transition ${
-                    active
-                      ? "bg-accent-dim text-accent font-medium"
-                      : "text-text-1 hover:bg-surface"
-                  }`}
-                >
-                  <span className="text-lg">{r.flag}</span>
-                  <span className="flex-1">{r.name}</span>
-                  {active && (
-                    <span className="text-accent text-xs" aria-hidden>
-                      ✓
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </div>
-  );
 }

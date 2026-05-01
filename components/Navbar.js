@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { REGIONS, getRegionClient, setRegionClient, getRegionInfo } from "../lib/region";
 
 const NAV = [
   { href: "/discover", label: "Discover", icon: CompassIcon },
@@ -42,6 +43,34 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  const [regionOpen, setRegionOpen] = useState(false);
+  const [region, setRegion] = useState("IN");
+
+  // Read the current region from cookie on mount + whenever route changes
+  // (route change = potential reload after region picker)
+  useEffect(() => {
+    setRegion(getRegionClient());
+  }, [router.asPath]);
+
+  const switchRegion = (code) => {
+    if (code === region) {
+      setRegionOpen(false);
+      return;
+    }
+    setRegionClient(code);
+    setRegion(code);
+    setRegionOpen(false);
+    setMenuOpen(false);
+    // Hard reload — bypasses Next's client-side routing AND any cache.
+    // Append a cache-buster so even aggressive proxies serve fresh.
+    setTimeout(() => {
+      const url = new URL(window.location.href);
+      url.searchParams.set("_r", Date.now().toString());
+      window.location.href = url.toString();
+    }, 60);
+  };
+
+  const regionInfo = getRegionInfo(region);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -61,9 +90,10 @@ export default function Navbar() {
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-bg/85 backdrop-blur-xl border-b border-border"
+          ? "bg-bg/90 backdrop-blur-xl border-b border-border shadow-[0_4px_24px_-12px_rgba(0,0,0,0.4)]"
           : "bg-transparent"
       }`}
+      style={{ paddingTop: "var(--safe-top)" }}
     >
       <div className="container-x flex items-center h-16 md:h-20">
         {/* Logo */}
@@ -199,6 +229,79 @@ export default function Navbar() {
           )}
         </div>
 
+        {/* Region picker — desktop only (mobile users access via hamburger) */}
+        <div className="ml-2 mr-1 hidden md:block relative">
+          <button
+            onClick={() => {
+              setRegionOpen((v) => !v);
+              setProfileOpen(false);
+              setAiOpen(false);
+            }}
+            aria-label={`Region: ${regionInfo.name}`}
+            aria-expanded={regionOpen}
+            className={`inline-flex items-center gap-2 h-10 px-3 rounded-full border text-sm transition btn-press ${
+              regionOpen
+                ? "bg-elevated border-accent text-text-1"
+                : "bg-surface border-border text-text-1 hover:border-accent"
+            }`}
+            title={`Showing content for ${regionInfo.name}`}
+          >
+            <span className="text-base leading-none">{regionInfo.flag}</span>
+            <span className="hidden lg:inline">{regionInfo.name}</span>
+            <span
+              className={`text-text-3 text-xs transition ${regionOpen ? "rotate-180 text-accent" : ""}`}
+              aria-hidden
+            >
+              ▾
+            </span>
+          </button>
+          {regionOpen && (
+            <>
+              <button
+                aria-label="Close"
+                className="fixed inset-0 z-40 cursor-default"
+                onClick={() => setRegionOpen(false)}
+              />
+              <div
+                role="listbox"
+                className="absolute z-50 right-0 mt-2 w-64 max-h-[28rem] overflow-y-auto bg-elevated border border-border rounded-2xl py-2"
+                style={{
+                  boxShadow:
+                    "0 16px 48px -8px rgba(0,0,0,0.6), 0 0 32px -8px var(--accent-glow)",
+                }}
+              >
+                <p className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest2 text-text-3 border-b border-border mb-1">
+                  region
+                </p>
+                {REGIONS.map((r) => {
+                  const active = r.code === region;
+                  return (
+                    <button
+                      key={r.code}
+                      role="option"
+                      aria-selected={active}
+                      onClick={() => switchRegion(r.code)}
+                      className={`w-full text-left flex items-center gap-3 px-4 py-2 text-sm transition ${
+                        active
+                          ? "bg-accent-dim text-accent font-medium"
+                          : "text-text-1 hover:bg-surface"
+                      }`}
+                    >
+                      <span className="text-lg">{r.flag}</span>
+                      <span className="flex-1">{r.name}</span>
+                      {active && (
+                        <span className="text-accent text-xs" aria-hidden>
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+
         {/* ALWAYS-VISIBLE search icon — works on mobile + desktop */}
         <Link
           href="/search"
@@ -286,7 +389,10 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {menuOpen && (
-        <div className="md:hidden bg-bg/95 backdrop-blur-xl border-b border-border animate-fade-in">
+        <div
+          className="md:hidden bg-bg/95 backdrop-blur-xl border-b border-border animate-fade-in"
+          style={{ paddingBottom: "var(--safe-bottom)" }}
+        >
           <div className="container-x py-4 space-y-1">
             {NAV.map((item) => {
               const Icon = item.icon;
@@ -334,6 +440,40 @@ export default function Navbar() {
                   </Link>
                 );
               })}
+            </div>
+
+            {/* Region picker — mobile drawer */}
+            <div className="pt-3 mt-3 border-t border-border">
+              <p className="px-4 mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-text-3">
+                Region
+              </p>
+              <p className="px-4 mb-2 text-xs text-text-3 leading-relaxed">
+                Show what's trending in{" "}
+                <span className="text-text-1 font-medium">
+                  {regionInfo.flag} {regionInfo.name}
+                </span>
+              </p>
+              <div className="grid grid-cols-3 gap-1.5 px-4">
+                {REGIONS.map((r) => {
+                  const active = r.code === region;
+                  return (
+                    <button
+                      key={r.code}
+                      onClick={() => switchRegion(r.code)}
+                      className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl text-[11px] transition btn-press ${
+                        active
+                          ? "bg-accent-dim border border-accent text-accent font-medium"
+                          : "border border-border bg-surface text-text-1 hover:border-accent"
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{r.flag}</span>
+                      <span className="leading-tight truncate w-full text-center">
+                        {r.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="pt-3 mt-3 border-t border-border">

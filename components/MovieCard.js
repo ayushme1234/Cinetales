@@ -15,7 +15,7 @@ export default function MovieCard({ item, priority = false, rank = null }) {
 
   return (
     <Link href={`/${type}/${id}`} className="group block relative card-hover">
-      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-surface border border-border">
+      <div className="relative aspect-[2/3] rounded-lg md:rounded-xl overflow-hidden bg-surface border border-border">
         {poster ? (
           <Image
             src={poster}
@@ -35,7 +35,7 @@ export default function MovieCard({ item, priority = false, rank = null }) {
         )}
 
         {/* Type chip */}
-        <span className="absolute top-2 left-2 z-10 bg-bg/75 backdrop-blur text-[10px] font-mono uppercase tracking-widest text-text-1 px-2 py-1 rounded-md border border-border-light/50">
+        <span className="absolute top-1.5 left-1.5 md:top-2 md:left-2 z-10 bg-bg/75 backdrop-blur text-[9px] md:text-[10px] font-mono uppercase tracking-widest text-text-1 px-1.5 md:px-2 py-0.5 md:py-1 rounded-md border border-border-light/50">
           {type === "tv" ? "Series" : "Film"}
         </span>
 
@@ -49,15 +49,15 @@ export default function MovieCard({ item, priority = false, rank = null }) {
         {/* Score badge */}
         {score !== null && (
           <span
-            className="absolute top-2 right-2 z-10 bg-accent text-white text-xs font-mono font-medium px-2 py-1 rounded-md"
+            className="absolute top-1.5 right-1.5 md:top-2 md:right-2 z-10 bg-accent text-white text-[11px] md:text-xs font-mono font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-md"
             style={{ boxShadow: "0 4px 16px -4px var(--accent-glow)" }}
           >
             {score.toFixed(1)}
           </span>
         )}
 
-        {/* Hover overlay */}
-        <div className="absolute inset-x-0 bottom-0 z-10 p-3 bg-gradient-to-t from-bg via-bg/80 to-transparent translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+        {/* Hover overlay — desktop only (mobile already shows title below) */}
+        <div className="hidden md:block absolute inset-x-0 bottom-0 z-10 p-3 bg-gradient-to-t from-bg via-bg/80 to-transparent translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
           <p className="font-display text-base leading-tight line-clamp-2">
             {title}
           </p>
@@ -68,8 +68,8 @@ export default function MovieCard({ item, priority = false, rank = null }) {
       </div>
 
       {/* Always-visible title under card */}
-      <div className="mt-2.5 px-1">
-        <p className="text-sm text-text-1 line-clamp-1 group-hover:text-accent transition-colors">
+      <div className="mt-2 px-0.5">
+        <p className="text-[13px] md:text-sm text-text-1 line-clamp-1 group-hover:text-accent transition-colors">
           {title}
         </p>
         {year && (

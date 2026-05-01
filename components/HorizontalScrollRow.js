@@ -29,17 +29,19 @@ export default function HorizontalScrollRow({
   if (!items || items.length === 0) return null;
 
   return (
-    <section className="mt-8 md:mt-16">
-      <div className="flex items-end justify-between mb-6 gap-4">
+    <section className="mt-10 md:mt-16">
+      <div className="flex items-end justify-between mb-4 md:mb-6 gap-3">
         <div className="min-w-0">
           {label && (
-            <p className="font-mono text-[10px] uppercase tracking-widest2 text-accent mb-2">
+            <p className="font-mono text-[10px] uppercase tracking-widest2 text-accent mb-1.5 md:mb-2">
               // {label}
             </p>
           )}
-          <h2 className="font-display text-2xl md:text-4xl leading-tight">{title}</h2>
+          <h2 className="font-display text-xl md:text-4xl leading-tight">{title}</h2>
           {subtitle && (
-            <p className="text-sm text-text-3 mt-1">{subtitle}</p>
+            <p className="text-xs md:text-sm text-text-3 mt-0.5 md:mt-1 line-clamp-1 md:line-clamp-none">
+              {subtitle}
+            </p>
           )}
         </div>
         <div className="flex items-center gap-3 shrink-0">
