@@ -10,15 +10,19 @@ export default function WatchlistButton({ mediaId, mediaType, title, posterPath 
     if (status !== "authenticated") return;
     let cancel = false;
     fetch(`/api/watchlist`)
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`watchlist GET ${r.status}`);
+        return r.json();
+      })
       .then((rows) => {
         if (cancel) return;
-        const has = (rows || []).some(
+        const arr = Array.isArray(rows) ? rows : [];
+        const has = arr.some(
           (r) => r.media_id === Number(mediaId) && r.media_type === mediaType
         );
         setAdded(has);
       })
-      .catch(() => {});
+      .catch((e) => console.warn("watchlist GET failed:", e.message));
     return () => { cancel = true; };
   }, [status, mediaId, mediaType]);
 
@@ -30,20 +34,32 @@ export default function WatchlistButton({ mediaId, mediaType, title, posterPath 
     setLoading(true);
     try {
       if (added) {
-        await fetch(`/api/watchlist`, {
+        const r = await fetch(`/api/watchlist`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaId, mediaType }),
         });
+        if (!r.ok) {
+          const data = await r.json().catch(() => ({}));
+          alert(`Couldn't remove from watchlist: ${data.error || r.status}`);
+          return;
+        }
         setAdded(false);
       } else {
-        await fetch(`/api/watchlist`, {
+        const r = await fetch(`/api/watchlist`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaId, mediaType, title, posterPath }),
         });
+        if (!r.ok) {
+          const data = await r.json().catch(() => ({}));
+          alert(`Couldn't add to watchlist: ${data.error || r.status}`);
+          return;
+        }
         setAdded(true);
       }
+    } catch (e) {
+      alert(`Network error: ${e.message}`);
     } finally {
       setLoading(false);
     }
