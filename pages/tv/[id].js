@@ -25,7 +25,7 @@ import {
   pickProviders,
 } from "../../lib/tmdb";
 
-export default function TVDetailPage({ tv, trailer, providers, similar, cast, crew }) {
+export default function TVDetailPage({ tv, trailer, providers, similar = [], cast = [], crew = [] }) {
   const [trailerOpen, setTrailerOpen] = useState(false);
   if (!tv) return null;
 
@@ -178,7 +178,7 @@ export default function TVDetailPage({ tv, trailer, providers, similar, cast, cr
                 <TrailerButton
                   trailer={trailer}
                   title={tv.name}
-                  year={year}
+                  year={startYear}
                 />
                 <WatchedButton
                   mediaId={tv.id}

@@ -29,7 +29,7 @@ export default function HorizontalScrollRow({
   if (!items || items.length === 0) return null;
 
   return (
-    <section className="mt-16">
+    <section className="mt-8 md:mt-16">
       <div className="flex items-end justify-between mb-6 gap-4">
         <div className="min-w-0">
           {label && (

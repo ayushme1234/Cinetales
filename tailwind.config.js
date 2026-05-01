@@ -51,6 +51,7 @@ module.exports = {
         marquee: "marquee 60s linear infinite",
         "marquee-reverse": "marqueeReverse 60s linear infinite",
         "pulse-accent": "pulseAccent 2.4s ease-in-out infinite",
+        "pulse-slow": "pulseAccent 4s ease-in-out infinite",
         shimmer: "shimmer 1.8s infinite",
         float: "float 6s ease-in-out infinite",
       },

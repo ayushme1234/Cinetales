@@ -33,9 +33,9 @@ export default function MovieDetailPage({
   movie,
   trailer,
   providers,
-  similar,
-  cast,
-  crew,
+  similar = [],
+  cast = [],
+  crew = [],
 }) {
   const [trailerOpen, setTrailerOpen] = useState(false);
   if (!movie) return null;
