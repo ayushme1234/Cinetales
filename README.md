@@ -1,99 +1,122 @@
-# 🎬 CineTales
+# CineTales
 
-Movie & show discovery app with AI. Free to deploy. Built by [Ayush](https://nextfolio-rouge.vercel.app/).
+Find tales that matter. A cinematic Next.js app to discover, rate, and track movies and series — with trailers, streaming availability, and **two flagship AI features** powered by Groq + Llama 3.3.
 
-```
-🎥 Trailer playback   ⭐ 0-10 ratings + Go/Timepass/Skip verdicts
-🤖 AI Vibes matcher   💬 AI chat about any title
-🔍 Filters (genre/year/rating)   🔐 Google sign-in
-🇮🇳 India ISP-block workaround   📊 Community stats
-```
+Live: [cinetales-lilac.vercel.app](https://cinetales-lilac.vercel.app/)
 
 ---
 
-## 🚀 Deploy in 45 minutes for free
+## Design language
 
-**👉 Follow [DEPLOY.md](./DEPLOY.md) — complete step-by-step guide.**
+Inspired by Moctale, Spotify, and BookMyShow:
 
-It walks you through 8 steps:
-1. Install the project
-2. Get 6 free API keys (TMDB, Google OAuth, Supabase, Groq, NextAuth)
-3. Test it locally
-4. Push to GitHub
-5. Deploy to Vercel
-6. Add the production URL env var
-7. Update Google OAuth for production
-8. Test the live site
+- **Lavender / purple accent** (`#a855f7`) on deep near-black (`#0a0710`) — eye-catching but minimal
+- **4 verdict tiers** (matching Moctale): Skip · Timepass · Go For It · **Perfection** ★
+- Hero with two opposing scrolling poster walls behind the wordmark
+- Spotify-style horizontal scroll rows with arrow controls
+- BookMyShow-style "Most Interested This Week" rail with rank numbers + 🔥
+- DM Serif Display headings · Outfit body · DM Mono accents
+- Generous whitespace, single accent color used sparingly, mobile-first
 
----
+## Features
 
-## Tech stack
+- Cinematic dark + lavender UI, fully responsive
+- Movie/TV detail pages with TMDB scores, genre vibes, audience %, cast, similar titles
+- **Trailer plays inline — no login required** (YouTube embed)
+- **Streaming provider cards** prominent on every detail page (Stream / Free / Ads / Rent / Buy) with logos and IN→US→GB region detection
+- 4-tier verdict rating (Skip / Timepass / Go For It / Perfection) + precise 0–10 score slider
+- Watchlist with watched / unwatched toggle
+- Discover with filters (genre, year, rating, sort), URL-synced
+- Trending with editorial ranked layout
+- Search across films, series, anime
 
-Next.js 14 · TypeScript · Tailwind · NextAuth · Prisma · PostgreSQL · TMDB API · Groq + Llama 3.3 70B
+## AI features (✦ Groq + Llama 3.3)
 
-## Free-tier costs
+### `/vibes` — VibesAI
+Describe a mood ("rainy day comfort watch", "neon cyberpunk vibes"), get 8 films/shows enriched with TMDB posters and one-sentence reasons.
 
-Hosted entirely on free tiers (Vercel + Supabase + Groq + TMDB + Google OAuth). **Total: ₹0/month.**
+### `/match` — AI Match (NEW)
+Enter two films you loved. Get five films that **bridge them tonally** — what makes both special, woven into one recommendation. Each pick comes with TMDB poster, score, and a one-sentence reason.
 
-## Local dev
+### AI Pitch (NEW · on every detail page)
+"Why watch this?" button → 3 spoiler-free pitches generated in real time. Tells you what kind of film it is and who it's for, never the plot.
+
+## Stack
+
+- **Next.js 14** (Pages Router, JavaScript — no TypeScript)
+- **NextAuth.js** with Google OAuth (JWT strategy)
+- **Postgres** via raw `pg` (no ORM) — auto-migrating CHECK constraint for new `perfection` tier
+- **TMDB v3 API** with v4 Bearer token (never `?api_key=`)
+- **Groq SDK** with `llama-3.3-70b-versatile`
+- **Tailwind CSS** with custom design tokens
+
+## Environment Variables
+
+Required (already set in Vercel — names match exactly):
+
+```env
+GROQ_API_KEY=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CLIENT_ID=
+NEXTAUTH_URL=https://cinetales-lilac.vercel.app
+NEXTAUTH_SECRET=
+DATABASE_URL=
+TMDB_BEARER_TOKEN=
+```
+
+`TMDB_BEARER_TOKEN` is the v4 read-access token, used as `Authorization: Bearer …`.
+
+`DATABASE_URL` is your Postgres connection string. Tables auto-create on first call to `/api/watchlist` or `/api/ratings`. The `vibe` CHECK constraint is **safely migrated** to allow `'perfection'` without dropping data.
+
+## Local Development
 
 ```bash
 npm install
-cp .env.example .env.local   # fill in 6 values (see DEPLOY.md)
-npm run db:push              # create database tables
-npm run dev                  # → http://localhost:3000
+cp .env.example .env.local   # fill in values
+npm run dev                  # http://localhost:3000
 ```
 
-## Useful scripts
+For local Google OAuth, set `NEXTAUTH_URL=http://localhost:3000` and add `http://localhost:3000/api/auth/callback/google` to your Google OAuth client's authorized redirect URIs.
 
-| Command | What it does |
-|---------|--------------|
-| `npm run dev` | Run dev server |
-| `npm run build` | Production build |
-| `npm run start` | Run production build locally |
-| `npm run lint` | Lint code |
-| `npm run db:push` | Sync schema to database |
-| `npm run db:studio` | Open Prisma Studio (visual DB browser) |
-| `npm run db:generate` | Regenerate Prisma client |
+## Deploy
 
-## Project structure
+Just push. Vercel rebuilds. Existing env vars work as-is.
+
+## Project Structure
 
 ```
-src/
-  app/                    Pages (Next.js App Router)
-    page.tsx              Landing page
-    about/                About the creator
-    discover/             Browse with filters
-    movie/[id]/           Film details (trailer + AI + comments)
-    tv/[id]/              Show details
-    vibes/                AI mood matcher 🆕
-    login/, profile/, watchlist/, search/, trending/
-    api/
-      auth/[...nextauth]/ NextAuth handler
-      ai/                 AI routes (recommend, mood, chat)
-      img/                TMDB image proxy (India workaround)
-      review/, watchlist/, comments/, search/
-  components/             React components
-  lib/
-    auth.ts               NextAuth config
-    prisma.ts             Prisma client singleton
-    tmdb.ts               TMDB client
-    groq.ts               Groq + Llama client
-prisma/
-  schema.prisma           Database schema
-public/                   Static assets (favicon, robots.txt)
+cinetales/
+├── pages/
+│   ├── _app.js, _document.js
+│   ├── index.js          ← Hero with scrolling poster walls
+│   ├── login.js, search.js, discover.js, trending.js
+│   ├── vibes.js          ← AI mood-based recs
+│   ├── match.js          ← AI Match flagship (NEW)
+│   ├── profile.js, watchlist.js, about.js
+│   ├── movie/[id].js, tv/[id].js
+│   └── api/
+│       ├── auth/[...nextauth].js
+│       ├── search.js, discover.js
+│       ├── vibes.js
+│       ├── ai-match.js   ← NEW
+│       ├── ai-pitch.js   ← NEW
+│       └── watchlist.js, ratings.js
+├── components/
+│   ├── Navbar, Footer, MovieCard, HorizontalScrollRow
+│   ├── TrailerHero, TrailerModal, WatchProviders
+│   ├── RatingPanel, RatingControls (4 tiers), RatingBadge
+│   ├── WatchlistButton, SearchBar, GenreTag
+│   ├── AIPitch          ← NEW
+│   └── SkeletonCard, LoadingSpinner, Marquee, Typewriter
+├── lib/
+│   ├── tmdb.js          ← Bearer auth, all TMDB endpoints + helpers
+│   ├── db.js            ← pg pool, idempotent migrations
+│   └── auth.js
+├── styles/globals.css
+├── public/favicon.svg
+└── README.md
 ```
-
----
 
 ## Credits
 
-- Movie data: [TMDB](https://www.themoviedb.org/)
-- AI: [Groq](https://groq.com/) (Llama 3.3 70B)
-- Trailers: YouTube embeds
-
-This product uses the TMDB API but is not endorsed or certified by TMDB.
-
-## License
-
-MIT — see [LICENSE](./LICENSE)
+Designed and built by [Ayush](https://github.com/ayushme1234). Movie & TV data from [TMDB](https://www.themoviedb.org/). Streaming availability via JustWatch (through TMDB). AI by [Groq](https://groq.com). This product uses the TMDB API but is not endorsed or certified by TMDB.
