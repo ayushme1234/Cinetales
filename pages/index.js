@@ -5,6 +5,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -15,12 +16,17 @@ import {
   getPopularTV,
   getNowPlayingMovies,
   discoverMovies,
+  discoverTV,
   posterUrl,
   getTitle,
   getYear,
 } from "../lib/tmdb";
+import { getRegionFromReq, getRegionInfo, REGIONS, setRegionClient } from "../lib/region";
 
 export default function HomePage({
+  region = "IN",
+  regionMovies = [],
+  regionTV = [],
   trending,
   popularMovies,
   popularTV,
@@ -32,6 +38,7 @@ export default function HomePage({
 }) {
   const { data: session, status } = useSession();
   const loggedOut = status === "unauthenticated";
+  const regionInfo = getRegionInfo(region);
 
   return (
     <>
@@ -206,9 +213,37 @@ export default function HomePage({
 
       <main className="bg-bg pb-24 relative">
         <div className="container-x">
+          {/* ──── Region picker — works for everyone, no login needed ─────── */}
+          <div className="mt-12 md:mt-16 mb-3 flex items-center gap-2 flex-wrap">
+            <span className="font-mono text-[10px] md:text-xs uppercase tracking-widest2 text-text-3">
+              showing
+            </span>
+            <RegionInlinePicker current={region} />
+          </div>
+
+          {/* ──── Popular in {region} — TOP PRIORITY ────────── */}
+          {regionMovies && regionMovies.length > 0 && (
+            <HorizontalScrollRow
+              title={`Popular in ${regionInfo.name}`}
+              subtitle={`What's trending right now in ${regionInfo.flag} ${regionInfo.name}`}
+              items={regionMovies}
+              forceType="movie"
+            />
+          )}
+
+          {/* ──── Top Series ─────────────────────── */}
+          {regionTV && regionTV.length > 0 && (
+            <HorizontalScrollRow
+              title="Trending Series"
+              subtitle="Most-watched series this week"
+              items={regionTV}
+              forceType="tv"
+            />
+          )}
+
           {/* ──── Trending row ─────────────────────────────── */}
           <HorizontalScrollRow
-            title="Trending Now"
+            title="Trending Globally"
             subtitle="What everyone's watching this week"
             href="/trending"
             items={trending}
@@ -456,7 +491,9 @@ function FlameIcon() {
 }
 
 /* ─── SSR ──────────────────────────────────────────────────────── */
-export async function getServerSideProps({ res }) {
+export async function getServerSideProps({ req, res }) {
+  const region = getRegionFromReq(req);
+
   let trending = [];
   let popularMovies = [];
   let popularTV = [];
@@ -465,27 +502,39 @@ export async function getServerSideProps({ res }) {
   let nowPlaying = [];
   let criticallyAcclaimed = [];
   let hiddenGems = [];
+  let regionMovies = [];   // region-origin films
+  let regionTV = [];       // region-origin series
 
   try {
-    const currentYear = new Date().getFullYear();
-
-    const [t, pm, pt, np, acclaimed, gems] = await Promise.all([
+    const [t, pm, pt, np, acclaimed, gems, regMov, regTv] = await Promise.all([
       getTrending("week"),
-      getPopularMovies(1),
+      getPopularMovies(1, region),
       getPopularTV(1),
-      // Now playing in theaters
-      getNowPlayingMovies(1).catch(() => ({ results: [] })),
-      // Critically acclaimed: very high rated with lots of votes (current year)
+      getNowPlayingMovies(1, region).catch(() => ({ results: [] })),
       discoverMovies({
         sortBy: "vote_average.desc",
         minRating: 7.5,
         page: 1,
       }).catch(() => ({ results: [] })),
-      // Hidden gems: high rated but lower popularity
       discoverMovies({
         sortBy: "vote_average.desc",
         minRating: 7.0,
-        page: 2, // page 2 to skip the most-popular high-rated films
+        page: 2,
+      }).catch(() => ({ results: [] })),
+      // What's currently popular in this region — ALL origins, sorted by
+      // popularity, filtered by release window for the region. This gives
+      // Hollywood blockbusters showing in IN, Korean hits, Indian originals
+      // — basically what's trending right now in that country.
+      discoverMovies({
+        sortBy: "popularity.desc",
+        region,
+        page: 1,
+      }).catch(() => ({ results: [] })),
+      // Popular series — TV doesn't have a region filter, so we use global
+      // popular series. They're mostly the same titles trending worldwide.
+      discoverTV({
+        sortBy: "popularity.desc",
+        page: 1,
       }).catch(() => ({ results: [] })),
     ]);
 
@@ -496,12 +545,10 @@ export async function getServerSideProps({ res }) {
     popularTV = (pt.results || []).slice(0, 18);
     nowPlaying = (np.results || []).slice(0, 14);
 
-    // Critically acclaimed — TMDB sort_by=vote_average + min vote count handled by API
     criticallyAcclaimed = (acclaimed.results || [])
-      .filter((m) => (m.vote_count || 0) >= 200) // ensure enough votes
+      .filter((m) => (m.vote_count || 0) >= 200)
       .slice(0, 14);
 
-    // Hidden gems — high score but lower popularity (truly underrated)
     hiddenGems = (gems.results || [])
       .filter(
         (m) =>
@@ -510,14 +557,22 @@ export async function getServerSideProps({ res }) {
           (m.vote_average || 0) >= 7.0
       )
       .slice(0, 14);
-
-    // If hidden gems comes up empty (rare), fall back to acclaimed page 2
     if (hiddenGems.length < 6) {
       hiddenGems = (gems.results || []).slice(0, 14);
     }
 
-    // Build poster wall — 30 unique posters from multiple sources for variety
+    // Region-specific rows — add media_type so cards link correctly
+    regionMovies = (regMov.results || [])
+      .map((m) => ({ ...m, media_type: "movie" }))
+      .slice(0, 18);
+    regionTV = (regTv.results || [])
+      .map((m) => ({ ...m, media_type: "tv" }))
+      .slice(0, 18);
+
+    // Build poster wall — prioritize region content for visual relevance
     const wallPool = [
+      ...regionMovies,
+      ...regionTV,
       ...trending,
       ...popularMovies,
       ...popularTV,
@@ -533,7 +588,6 @@ export async function getServerSideProps({ res }) {
       if (posterWall.length >= 30) break;
     }
 
-    // Most Interested — sort trending by popularity
     mostInterested = [...trending]
       .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
       .slice(0, 6);
@@ -547,6 +601,9 @@ export async function getServerSideProps({ res }) {
 
   return {
     props: {
+      region,
+      regionMovies,
+      regionTV,
       trending,
       popularMovies,
       popularTV,
@@ -557,4 +614,96 @@ export async function getServerSideProps({ res }) {
       hiddenGems,
     },
   };
+}
+
+/**
+ * Region picker pill rendered on the home page.
+ * Clicking opens a popover with all 15 regions. Selecting one writes the
+ * cookie and reloads the page so getServerSideProps sees the new region.
+ */
+function RegionInlinePicker({ current }) {
+  const [open, setOpen] = useState(false);
+  const info = getRegionInfo(current);
+
+  const select = (code) => {
+    if (code === current) {
+      setOpen(false);
+      return;
+    }
+    setRegionClient(code);
+    // Hard reload so SSR re-runs with the new cookie
+    setTimeout(() => window.location.reload(), 50);
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-sm transition group ${
+          open
+            ? "bg-elevated border-accent text-text-1"
+            : "bg-surface border-border hover:border-accent text-text-1"
+        }`}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+      >
+        <span className="text-base">{info.flag}</span>
+        <span>{info.name}</span>
+        <span
+          className={`text-text-3 text-xs transition ${
+            open ? "rotate-180 text-accent" : ""
+          }`}
+          aria-hidden
+        >
+          ▾
+        </span>
+      </button>
+
+      {open && (
+        <>
+          {/* Click-outside backdrop */}
+          <button
+            aria-label="Close"
+            className="fixed inset-0 z-40 cursor-default"
+            onClick={() => setOpen(false)}
+          />
+          <div
+            role="listbox"
+            className="absolute z-50 left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-elevated border border-border rounded-2xl shadow-2xl py-2"
+            style={{
+              boxShadow: "0 16px 48px -8px rgba(0,0,0,0.6), 0 0 32px -8px var(--accent-glow)",
+            }}
+          >
+            <p className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest2 text-text-3 border-b border-border mb-1">
+              choose region
+            </p>
+            {REGIONS.map((r) => {
+              const active = r.code === current;
+              return (
+                <button
+                  key={r.code}
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => select(r.code)}
+                  className={`w-full text-left flex items-center gap-3 px-4 py-2 text-sm transition ${
+                    active
+                      ? "bg-accent-dim text-accent font-medium"
+                      : "text-text-1 hover:bg-surface"
+                  }`}
+                >
+                  <span className="text-lg">{r.flag}</span>
+                  <span className="flex-1">{r.name}</span>
+                  {active && (
+                    <span className="text-accent text-xs" aria-hidden>
+                      ✓
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
 }

@@ -79,13 +79,13 @@ export default function HorizontalScrollRow({
 
       <div
         ref={ref}
-        className="no-scrollbar overflow-x-auto scroll-smooth snap-x"
+        className="no-scrollbar overflow-x-auto snap-x snap-mandatory scroll-row-touch"
       >
         <div className="flex gap-3 md:gap-4 pb-2">
           {items.map((m, i) => (
             <div
               key={`${m.id}-${i}`}
-              className="snap-start shrink-0 w-[42vw] sm:w-[28vw] md:w-[180px] lg:w-[200px]"
+              className="snap-start shrink-0 w-[42vw] sm:w-[28vw] md:w-[180px] lg:w-[200px] scroll-row-card"
             >
               <MovieCard
                 item={cardType ? { ...m, media_type: cardType } : m}

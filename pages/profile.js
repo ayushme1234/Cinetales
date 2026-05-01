@@ -11,6 +11,7 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { REGIONS, getRegionClient, setRegionClient, getRegionInfo } from "../lib/region";
 
 const VIBE_LABEL = {
   skip: { label: "Skip", color: "text-skip", bg: "bg-skip", border: "border-skip" },
@@ -181,9 +182,11 @@ export default function ProfilePage() {
                 </div>
               )}
 
+              <RegionPicker />
+
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="w-full mt-6 px-4 py-2.5 rounded-full border border-border-light text-text-2 hover:text-skip hover:border-skip text-sm transition btn-press"
+                className="w-full mt-3 px-4 py-2.5 rounded-full border border-border-light text-text-2 hover:text-skip hover:border-skip text-sm transition btn-press"
               >
                 Sign out
               </button>
@@ -445,5 +448,72 @@ function GridIcon() {
       <rect x="14" y="14" width="7" height="7" />
       <rect x="3" y="14" width="7" height="7" />
     </svg>
+  );
+}
+
+/**
+ * Region picker — lets the user change which country's content appears
+ * by default on the home page (Trending in {country}, Popular {country} Series).
+ * Saves to a "region" cookie and reloads the home page when changed.
+ */
+function RegionPicker() {
+  const router = useRouter();
+  const [region, setRegion] = useState("IN");
+
+  useEffect(() => {
+    setRegion(getRegionClient());
+  }, []);
+
+  const onChange = (e) => {
+    const code = e.target.value;
+    setRegion(code);
+    setRegionClient(code);
+    // Force a full reload so getServerSideProps picks up the new cookie
+    router.replace(router.asPath, undefined, { scroll: false });
+    // setTimeout to ensure cookie is set before reload, then hard refresh
+    setTimeout(() => window.location.reload(), 80);
+  };
+
+  const info = getRegionInfo(region);
+
+  return (
+    <div className="mt-6 pt-6 border-t border-border">
+      <p className="font-mono text-[10px] uppercase tracking-widest2 text-text-3 mb-2">
+        // region
+      </p>
+      <p className="text-sm text-text-2 mb-3 leading-relaxed">
+        Show content from{" "}
+        <span className="text-text-1 font-medium">
+          {info.flag} {info.name}
+        </span>{" "}
+        on the home page.
+      </p>
+      <div className="relative">
+        <select
+          value={region}
+          onChange={onChange}
+          className="w-full appearance-none bg-elevated border border-border rounded-full px-4 py-2.5 pr-10 text-sm text-text-1 hover:border-accent focus:border-accent focus:outline-none transition cursor-pointer"
+          style={{
+            backgroundColor: "var(--elevated)",
+            color: "var(--text-1)",
+          }}
+        >
+          {REGIONS.map((r) => (
+            <option key={r.code} value={r.code} style={{ backgroundColor: "var(--elevated)" }}>
+              {r.flag}  {r.name}
+            </option>
+          ))}
+        </select>
+        <span
+          aria-hidden
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-text-3 pointer-events-none"
+        >
+          ▾
+        </span>
+      </div>
+      <p className="font-mono text-[10px] text-text-3 mt-2">
+        Anyone can browse content from any country via search & discover.
+      </p>
+    </div>
   );
 }

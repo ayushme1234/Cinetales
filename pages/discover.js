@@ -10,6 +10,7 @@ import Footer from "../components/Footer";
 import MovieCard from "../components/MovieCard";
 import SkeletonCard from "../components/SkeletonCard";
 import { discoverMovies, discoverTV, getMovieGenres, getTVGenres } from "../lib/tmdb";
+import { getRegionFromReq } from "../lib/region";
 
 const SORTS = [
   { value: "popularity.desc", label: "Popular" },
@@ -263,6 +264,7 @@ export default function DiscoverPage({ initialItems, initialPage, initialTotalPa
 }
 
 export async function getServerSideProps(ctx) {
+  const region = getRegionFromReq(ctx.req);
   const q = ctx.query || {};
   const filters = {
     type: q.type === "tv" ? "tv" : "movie",
@@ -279,6 +281,10 @@ export async function getServerSideProps(ctx) {
       sortBy: filters.sortBy,
       minRating: Number(filters.minRating) || undefined,
       page: 1,
+      // Region filter for movies — biases popularity rankings toward this country.
+      // For TV, region has no effect at the TMDB API level, but we pass it
+      // anyway in case it matters for future endpoints.
+      region: filters.type === "movie" ? region : undefined,
     });
     const [movieGenres, tvGenres] = await Promise.all([
       getMovieGenres().catch(() => ({ genres: [] })),

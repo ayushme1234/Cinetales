@@ -96,6 +96,47 @@ select:-webkit-autofill {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
+/* ─── Touch-optimized horizontal scroll ─────────────────────────────────
+   Used by HorizontalScrollRow on every home/discover/trending page row.
+   Combines iOS momentum scrolling, GPU acceleration, and paint isolation
+   so cards don't jank as posters lazy-load and animations re-flow.        */
+.scroll-row-touch {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
+  scroll-snap-stop: always;
+  will-change: scroll-position;
+  /* Avoid the browser repainting siblings during fling */
+  contain: paint;
+  /* Hardware-accelerate the scroll layer */
+  transform: translateZ(0);
+}
+.scroll-row-card {
+  /* Each card paints in isolation — much smoother during lazy-load */
+  contain: layout paint style;
+  /* Forces card to its own compositor layer so scrolling doesn't repaint it */
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+@media (max-width: 768px) {
+  /* On phones, disable hover-scale animations on cards during scroll —
+     the animation re-trigger from rapid pointer events is what makes it feel choppy */
+  .scroll-row-card .card-hover { transition: none; }
+  .scroll-row-card .card-hover:hover { transform: none; }
+  /* Kill the hover-zoom on poster images — it re-triggers on every touch */
+  .scroll-row-card img { transition: none !important; }
+  .scroll-row-card .group:hover img { transform: none !important; }
+  /* Skip the hover-overlay slide-in on mobile too */
+  .scroll-row-card .group .opacity-0 { opacity: 0 !important; }
+  .scroll-row-card .group:hover .opacity-0 { transform: none !important; }
+}
+@media (hover: none) {
+  /* Touch-only devices — same protections as above, more inclusive selector */
+  .scroll-row-card .card-hover { transition: none !important; }
+  .scroll-row-card img { transition: none !important; }
+}
+
 /* ─── Focus ─────────────────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--accent);
