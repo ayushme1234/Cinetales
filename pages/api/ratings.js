@@ -33,14 +33,19 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      const { mediaId, mediaType, score, vibe } = req.body;
+      const { mediaId, mediaType, score, vibe, title, posterPath } = req.body;
       if (!mediaId || !mediaType) return res.status(400).json({ error: "Missing fields" });
       await pool.query(
-        `INSERT INTO ratings (user_id, media_id, media_type, score, vibe)
-         VALUES ($1,$2,$3,$4,$5)
+        `INSERT INTO ratings (user_id, media_id, media_type, score, vibe, title, poster_path)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)
          ON CONFLICT (user_id, media_id, media_type)
-         DO UPDATE SET score=$4, vibe=$5, rated_at=NOW()`,
-        [userId, mediaId, mediaType, score ?? null, vibe ?? null]
+         DO UPDATE SET
+           score = $4,
+           vibe = $5,
+           title = COALESCE(EXCLUDED.title, ratings.title),
+           poster_path = COALESCE(EXCLUDED.poster_path, ratings.poster_path),
+           rated_at = NOW()`,
+        [userId, mediaId, mediaType, score ?? null, vibe ?? null, title || null, posterPath || null]
       );
       return res.status(200).json({ success: true });
     }

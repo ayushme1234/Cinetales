@@ -20,7 +20,6 @@ import AIPitch from "../../components/AIPitch";
 import VibeChart from "../../components/VibeChart";
 import AudienceScore from "../../components/AudienceScore";
 import CastCrewRow from "../../components/CastCrewRow";
-import CommentSection from "../../components/CommentSection";
 import MovieCard from "../../components/MovieCard";
 import {
   getMovieDetail,
@@ -374,7 +373,12 @@ export default function MovieDetailPage({
             score={movie.vote_average}
             voteCount={movie.vote_count}
           />
-          <RatingControls mediaId={movie.id} mediaType="movie" />
+          <RatingControls
+            mediaId={movie.id}
+            mediaType="movie"
+            title={movie.title}
+            posterPath={movie.poster_path}
+          />
         </section>
 
         {/* ─── WATCH PROVIDERS + AI PITCH ────────────────── */}
@@ -398,15 +402,6 @@ export default function MovieDetailPage({
         <div className="container-x">
           <CastCrewRow title="Crew" items={crew} roleKey="job" />
         </div>
-
-        {/* ─── COMMENTS ──────────────────────────────────── */}
-        <CommentSection
-          mediaId={movie.id}
-          mediaType="movie"
-          title={movie.title}
-          year={year}
-          genres={(movie.genres || []).map((g) => g.name)}
-        />
 
         {/* ─── SIMILAR ──────────────────────────────────── */}
         {similar?.length > 0 && (

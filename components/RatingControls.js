@@ -12,7 +12,7 @@ const TIERS = [
   { key: "perfection", label: "Perfection", short: "Perfection", icon: "★", color: "var(--perfection)" },
 ];
 
-export default function RatingControls({ mediaId, mediaType }) {
+export default function RatingControls({ mediaId, mediaType, title, posterPath }) {
   const { data: session, status } = useSession();
   const [vibe, setVibe] = useState(null);
   const [score, setScore] = useState(7.0);
@@ -47,6 +47,8 @@ export default function RatingControls({ mediaId, mediaType }) {
           mediaType,
           score: newScore,
           vibe: newVibe,
+          title,
+          posterPath,
         }),
       });
       if (res.ok) setSavedAt(Date.now());

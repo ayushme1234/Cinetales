@@ -48,20 +48,20 @@ export default function HomePage({
       {/* Mobile: vertical split — posters fill top 45vh, content fills bottom.
           Desktop: classic full-bleed with content overlay. */}
       <section className="relative pt-16 pb-0 overflow-hidden flex flex-col md:block min-h-[calc(100vh-4rem)] md:min-h-0">
-        {/* MOBILE POSTER STAGE (top half) — visible, less obscured.
+        {/* MOBILE POSTER STAGE (top portion) — visible, less obscured.
             On desktop this same div absolute-positions over the whole hero. */}
-        <div className="relative md:absolute md:inset-x-0 md:top-0 md:bottom-0 h-[45vh] md:h-auto pointer-events-none overflow-hidden">
+        <div className="relative md:absolute md:inset-x-0 md:top-0 md:bottom-0 h-[30vh] md:h-auto pointer-events-none overflow-hidden">
           <div className="absolute inset-0 purple-wash-top" />
 
           {/* Row 1 — top */}
-          <div className="absolute top-6 md:top-24 inset-x-0 flex animate-marquee">
+          <div className="absolute top-3 md:top-24 inset-x-0 flex animate-marquee">
             {[...posterWall, ...posterWall].slice(0, 28).map((p, i) => (
               <PosterTile key={`r1-${i}`} src={p} index={i} />
             ))}
           </div>
 
           {/* Row 2 — bottom */}
-          <div className="absolute bottom-6 md:bottom-12 inset-x-0 flex animate-marquee-reverse">
+          <div className="absolute bottom-3 md:bottom-12 inset-x-0 flex animate-marquee-reverse">
             {[...posterWall.slice().reverse(), ...posterWall.slice().reverse()].slice(0, 28).map((p, i) => (
               <PosterTile key={`r2-${i}`} src={p} index={i} />
             ))}
@@ -72,15 +72,15 @@ export default function HomePage({
           <div className="absolute inset-0 bg-gradient-to-b from-bg/0 via-transparent md:from-bg/40 md:via-bg/85 to-bg" />
           <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-bg via-transparent to-bg" />
           {/* Strong fade-to-bg at very bottom on mobile for clean handoff */}
-          <div className="md:hidden absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-bg" />
+          <div className="md:hidden absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-bg" />
         </div>
 
         {/* Hero content — bottom half on mobile, full overlay on desktop */}
-        <div className="container-x relative z-10 flex-1 md:min-h-[70vh] flex flex-col items-center justify-start md:justify-center text-center pt-6 pb-8 md:py-16">
+        <div className="container-x relative z-10 flex-1 md:min-h-[70vh] flex flex-col items-center justify-start md:justify-center text-center pt-3 pb-6 md:py-16">
           {/* VibesAI promo badge — animated, replaces old taglines */}
           <Link
             href="/vibes"
-            className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent-dim border border-accent/30 hover:border-accent text-accent text-xs md:text-sm font-mono uppercase tracking-[0.2em] mb-6 animate-fade-in btn-press transition-all hover:bg-accent/20"
+            className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent-dim border border-accent/30 hover:border-accent text-accent text-xs md:text-sm font-mono uppercase tracking-[0.2em] mb-3 md:mb-6 animate-fade-in btn-press transition-all hover:bg-accent/20"
           >
             <span className="relative grid place-items-center w-4 h-4">
               <span className="absolute inset-0 rounded-full bg-accent/40 animate-ping" />
@@ -94,13 +94,13 @@ export default function HomePage({
             Cine<span className="text-accent">Tales</span>
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base md:text-xl text-text-2 leading-relaxed animate-slide-up">
+          <p className="mt-3 md:mt-6 max-w-2xl text-sm md:text-xl text-text-2 leading-relaxed animate-slide-up">
             Discover films & series. Watch trailers. See where they&rsquo;re streaming.
             Rate them in 4 verdicts. Get AI picks for any vibe.
           </p>
 
           {/* CTA cluster — VibesAI is the primary, others secondary */}
-          <div className="mt-10 flex flex-wrap gap-3 justify-center animate-slide-up">
+          <div className="mt-5 md:mt-10 flex flex-wrap gap-2.5 md:gap-3 justify-center animate-slide-up">
             <Link
               href="/vibes"
               className="relative inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-accent text-white font-medium hover:bg-accent-hover btn-press text-base overflow-hidden group"
@@ -130,7 +130,7 @@ export default function HomePage({
           </div>
 
           {/* Quick stat strip */}
-          <div className="mt-10 md:mt-12 flex items-center gap-6 md:gap-10 text-mono text-[10px] md:text-xs uppercase tracking-widest text-text-3 animate-fade-in">
+          <div className="mt-5 md:mt-12 flex items-center gap-4 md:gap-10 text-mono text-[10px] md:text-xs uppercase tracking-widest text-text-3 animate-fade-in">
             <span>500k+ titles</span>
             <span className="w-px h-4 bg-border" />
             <span>AI powered</span>
@@ -140,21 +140,21 @@ export default function HomePage({
 
           {/* Sign in / Sign up — mobile-only, logged-out users */}
           {loggedOut && (
-            <div className="md:hidden mt-8 w-full max-w-xs animate-fade-in">
-              <div className="rounded-2xl bg-surface/80 backdrop-blur border border-border p-4 text-center">
-                <p className="text-xs text-text-3 mb-3 leading-relaxed">
-                  Save your watchlist, track ratings, comment on films
+            <div className="md:hidden mt-4 w-full max-w-xs animate-fade-in">
+              <div className="rounded-2xl bg-surface/80 backdrop-blur border border-border p-3 text-center">
+                <p className="text-[11px] text-text-3 mb-2 leading-relaxed">
+                  Save watchlist, track ratings, comment
                 </p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => signIn("google", { callbackUrl: "/" })}
-                    className="flex-1 px-4 py-2.5 rounded-full bg-accent text-white text-sm font-medium hover:bg-accent-hover btn-press"
+                    className="flex-1 px-3 py-2 rounded-full bg-accent text-white text-sm font-medium hover:bg-accent-hover btn-press"
                   >
                     Sign in
                   </button>
                   <Link
                     href="/login"
-                    className="flex-1 px-4 py-2.5 rounded-full bg-elevated border border-border-light text-text-1 text-sm font-medium hover:border-accent hover:text-accent btn-press"
+                    className="flex-1 px-3 py-2 rounded-full bg-elevated border border-border-light text-text-1 text-sm font-medium hover:border-accent hover:text-accent btn-press"
                   >
                     Sign up
                   </Link>
@@ -166,7 +166,7 @@ export default function HomePage({
           {/* Creator credit strip */}
           <Link
             href="/about"
-            className="mt-6 md:mt-10 group inline-flex items-center gap-3 px-2 py-1.5 pr-4 rounded-full bg-surface/60 backdrop-blur border border-border hover:border-accent transition-all btn-press animate-fade-in"
+            className="mt-3 md:mt-10 group inline-flex items-center gap-3 px-2 py-1.5 pr-4 rounded-full bg-surface/60 backdrop-blur border border-border hover:border-accent transition-all btn-press animate-fade-in"
           >
             <span
               className="relative grid place-items-center w-7 h-7 rounded-full overflow-hidden border border-accent/30 shrink-0"
@@ -191,12 +191,12 @@ export default function HomePage({
 
           {/* Scroll affordance — animated chevron pointing to content below.
               Mobile only since desktop hero is shorter. */}
-          <div className="md:hidden mt-auto pt-8 flex flex-col items-center gap-2 text-text-3 animate-fade-in">
-            <p className="font-mono text-[10px] uppercase tracking-[0.3em]">
-              Scroll for trending picks
+          <div className="md:hidden mt-auto pt-3 flex flex-col items-center gap-1 text-text-3 animate-fade-in">
+            <p className="font-mono text-[9px] uppercase tracking-[0.3em]">
+              Scroll for trending
             </p>
-            <div className="w-10 h-10 grid place-items-center animate-bounce-soft">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent" aria-hidden>
+            <div className="grid place-items-center animate-bounce-soft">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent" aria-hidden>
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </div>

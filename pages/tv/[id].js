@@ -16,7 +16,6 @@ import AIPitch from "../../components/AIPitch";
 import VibeChart from "../../components/VibeChart";
 import AudienceScore from "../../components/AudienceScore";
 import CastCrewRow from "../../components/CastCrewRow";
-import CommentSection from "../../components/CommentSection";
 import MovieCard from "../../components/MovieCard";
 import {
   getTVDetail,
@@ -345,7 +344,12 @@ export default function TVDetailPage({ tv, trailer, providers, similar = [], cas
         {/* AUDIENCE + RATING */}
         <section className="container-x mt-14 grid md:grid-cols-2 gap-5">
           <AudienceScore score={tv.vote_average} voteCount={tv.vote_count} />
-          <RatingControls mediaId={tv.id} mediaType="tv" />
+          <RatingControls
+            mediaId={tv.id}
+            mediaType="tv"
+            title={tv.name}
+            posterPath={tv.poster_path}
+          />
         </section>
 
         {/* PROVIDERS + AI PITCH */}
@@ -369,15 +373,6 @@ export default function TVDetailPage({ tv, trailer, providers, similar = [], cas
         <div className="container-x">
           <CastCrewRow title="Crew" items={crew} roleKey="job" />
         </div>
-
-        {/* COMMENTS */}
-        <CommentSection
-          mediaId={tv.id}
-          mediaType="tv"
-          title={tv.name}
-          year={startYear}
-          genres={(tv.genres || []).map((g) => g.name)}
-        />
 
         {/* SIMILAR */}
         {similar?.length > 0 && (

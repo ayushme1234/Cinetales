@@ -284,6 +284,9 @@ function RatingsView({ items, view }) {
         {items.map((r) => {
           const href = r.media_type === "tv" ? `/tv/${r.media_id}` : `/movie/${r.media_id}`;
           const vibe = VIBE_LABEL[r.vibe];
+          const poster = r.poster_path
+            ? `https://image.tmdb.org/t/p/w342${r.poster_path}`
+            : null;
           return (
             <Link
               key={`${r.media_type}-${r.media_id}`}
@@ -291,12 +294,22 @@ function RatingsView({ items, view }) {
               className="group block bg-surface border border-border rounded-xl p-3 hover:border-border-light transition"
             >
               <div className="relative aspect-[2/3] rounded-md overflow-hidden bg-elevated mb-3">
-                <div className="absolute inset-0 grid place-items-center text-text-3 text-xs px-2 text-center">
-                  #{r.media_id}
-                </div>
+                {poster ? (
+                  <Image
+                    src={poster}
+                    alt={r.title || ""}
+                    fill
+                    sizes="220px"
+                    className="object-cover group-hover:scale-105 transition duration-300"
+                  />
+                ) : (
+                  <div className="absolute inset-0 grid place-items-center text-text-3 text-xs px-2 text-center">
+                    {r.title || `#${r.media_id}`}
+                  </div>
+                )}
                 {vibe && (
                   <span
-                    className={`absolute top-2 left-2 ${vibe.bg} text-white text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full`}
+                    className={`absolute top-2 left-2 ${vibe.bg} text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full`}
                     style={{ color: r.vibe === "mid" ? "#0a0710" : "#fff" }}
                   >
                     {vibe.label}
@@ -309,7 +322,7 @@ function RatingsView({ items, view }) {
                 )}
               </div>
               <p className="text-sm text-text-1 truncate">
-                {r.media_type === "tv" ? "Series" : "Film"} #{r.media_id}
+                {r.title || `${r.media_type === "tv" ? "Series" : "Film"} #${r.media_id}`}
               </p>
               <p className="font-mono text-[10px] text-text-3 mt-1">
                 {new Date(r.rated_at).toLocaleDateString()}
@@ -338,7 +351,7 @@ function RatingsView({ items, view }) {
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-text-1 truncate group-hover:text-accent transition">
-                  {r.media_type === "tv" ? "Series" : "Film"} · TMDB #{r.media_id}
+                  {r.title || `${r.media_type === "tv" ? "Series" : "Film"} · TMDB #${r.media_id}`}
                 </p>
                 <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                   <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-border text-text-2">
